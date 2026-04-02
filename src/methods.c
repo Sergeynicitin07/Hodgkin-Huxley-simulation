@@ -11,7 +11,7 @@ double absolute (double x4, double x5) {
 }
 
 
-double errors (double *x, double *y, Solver *solver) {
+double Errors (double *x, double *y, Solver *solver) {
     int i;
 
     for (i = 0; i < solver->n; i++) {
@@ -27,6 +27,7 @@ double errors (double *x, double *y, Solver *solver) {
 }
 
 
+// Методом Рунге-Кутты 4
 void rk4 (Solver *solver, double *x, double h,
           void (*f) (double *x, double *fx, void *context, int *global),
           void *context, int *global){
@@ -55,6 +56,7 @@ void rk4 (Solver *solver, double *x, double h,
 }
 
 
+// Метод средней точки
 void midpoint (Solver *solver, double *x, double h,
                void (*f) (double *x, double *fx, void *context, int *global),
                void *context, int *global){
@@ -74,13 +76,18 @@ void midpoint (Solver *solver, double *x, double h,
 
 double Dormand_Prince (Solver *solver, double *x, double h,
                        void (*f) (double *x, double *fx, void *context, int *global),
-                       void *context,  double tol, int *global) {
+                       void *context,  double delta, int *global) {
     int i;
-    double factor;
+    int count = 0;
+    // Параметр оптимального интервала времени
+    double hopt = h;
+    // Создадим цикл для нахождения оптимального значения и интервала
     while(1) {
         f(x, (*solver).k1,
                 context, global);
         for (i = 0; i < solver->n; i++) {
+            // xmid = x + (1 / 5) * k1
+            // k1 = h * f(x)
             solver->xmid[i] = x[i] + (h * 0.2) * solver->k1[i];
         }
         f(solver->xmid, solver->k2,
@@ -125,15 +132,26 @@ double Dormand_Prince (Solver *solver, double *x, double h,
         }
         f(solver->xmid, solver->k7,
                 context, global);
+
+        // Найдем значение следующего шага
+        // Вычисление методом Рунге-Кутты порядка 5
+        // Получим значение, имеющее высокую точность
         for (i = 0; i < solver->n; i++) {
-            solver->x5[i] = x[i] + h * ((35.0 / 384.0) * solver->k1[i]
+            // Мы вынуждены умножить сумму на h, ввиду того, что значения
+            // каждого ki-го представляют собой взятую функцию f от нужного xmid
+            solver->Y_5[i] = x[i] + h * ((35.0 / 384.0) * solver->k1[i]
                                         + (500.0 / 1113.0) * solver->k3[i]
                                         + (125.0 / 192.0) * solver->k4[i]
                                         + (-2187.0 / 6784.0) * solver->k5[i]
                                         + (11.0 / 84.0) * solver->k6[i]);
         }
+        // Две формулы Рунге-Кутты имеют порядки q и p
+        // (q > p) обычно q = p + 1
+        // Возьмем p = 4, он представляет порядок формулы, ошибку которой мы оцениваем
+        double p = 4.0;
+        // Вычисление методом Рунге-Кутты порядка 4
         for (i = 0; i < solver->n; i++) {
-            solver->x4[i] = x[i] + h * ((5179.0 / 57600.0) * solver->k1[i]
+            solver->Y_4[i] = x[i] + h * ((5179.0 / 57600.0) * solver->k1[i]
                                         + (7571.0 / 16695.0) * solver->k3[i]
                                         + (393.0 / 640.0) * solver->k4[i]
                                         + (-92097.0 / 339200.0) * solver->k5[i]
@@ -141,32 +159,50 @@ double Dormand_Prince (Solver *solver, double *x, double h,
                                         + (1.0 / 40.0) * solver->k7[i]);
         }
 
-        double err_max = errors(solver->x4, solver->x5, solver);
+        // Найдем норму бесконечности (infinity norm)
+        double E = Errors(solver->Y_5, solver->Y_4, solver);
 
-        if (err_max < tol) {
+        // Если максимальный модуль разницы меньше дельта -> получаем результат
+        if (E < delta) {
             for (i = 0; i < solver->n; i++) {
-                x[i] = solver->x5[i];
+                x[i] = solver->Y_5[i];
+
             }
-        }
-        if (err_max == 0.0)
-            factor = 2.0;
-        else
-            factor = 0.9 * pow(tol / err_max, 0.2);
-
-        if (factor > 2.0) factor = 2.0;
-        if (factor < 0.1) factor = 0.1;
-
-        h = h * factor;
-
-        if (err_max < tol)
             break;
+        }
+
+
+        // Error per step control
+        if (E > 1e-14) {
+            // Мы вычисляем оптимальный интервал времени
+            hopt = 0.9 * h * pow(((delta) / (E)), ((1.0) / (p + 1.0)));
+            h = hopt;
+        } else {
+            // Обработка нуля
+            E = 1e-14;
+            hopt = 0.9 * h * pow(((delta) / (E)), ((1.0) / (p + 1.0)));
+            h = hopt;
+        }
+
+        count ++;
+        if (count > 10000) {
+            for (i = 0; i < solver->n; i++) {
+                x[i] = solver->Y_5[i];
+
+            }
+            break;
+        }
+
     }
 
-
-    return h;
+    // Возвращаем оптимальную единицу шага типа double
+    return hopt;
 
 }
 
+
+
+/*
 void trapezoid (Solver *solver, double *x, double h,
                 void (*f) (double *x, double *fx, void *context, int *global),
                 void *context, int *global) {
@@ -187,4 +223,4 @@ void trapezoid (Solver *solver, double *x, double h,
     for (i = 0; i < solver->n; i++) {
         x[i] = x[i] + (h / 2) * (solver->k1[i] + solver->k2[i]);
     }
-}
+}*/

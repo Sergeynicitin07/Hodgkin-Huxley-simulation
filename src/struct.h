@@ -12,7 +12,8 @@ typedef struct {
     double *k6;
     double *k7;
     double *x4;
-    double *x5;
+    double *Y_4;
+    double *Y_5;
     double *err;
     double *fx;
     double *xmid;

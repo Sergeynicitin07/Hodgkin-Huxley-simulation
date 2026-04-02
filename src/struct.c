@@ -32,8 +32,8 @@ Solver *solver_unit (int n){
     solver->x4 = (double *)malloc(sizeof(double) * n);
     if (!solver->x4) return NULL;
 
-    solver->x5 = (double *)malloc(sizeof(double) * n);
-    if (!solver->x5) return NULL;
+    solver->Y_4 = (double *)malloc(sizeof(double) * n);
+    if (!solver->Y_4) return NULL;
 
     solver->err = (double *)malloc(sizeof(double) * n);
     if (!solver->err) return NULL;
@@ -48,6 +48,10 @@ Solver *solver_unit (int n){
     if (!solver->xarr) return NULL;
 
     solver->xideal = (double *)malloc(sizeof(double) * n);
+    if (!solver->xarr) return NULL;
+
+    solver->Y_5 = (double *)malloc(sizeof(double) * n);
+    if (!solver->Y_5) return NULL;
 
     return solver;
 }
@@ -64,7 +68,8 @@ void solver_free(Solver *solver) {
     free(solver->k6);
     free(solver->k7);
     free(solver->x4);
-    free(solver->x5);
+    free(solver->Y_4);
+    free(solver->Y_5);
     free(solver->err);
     free(solver->fx);
     free(solver->xmid);

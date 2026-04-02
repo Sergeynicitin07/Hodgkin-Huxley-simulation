@@ -33,7 +33,7 @@ void trapezoid (Solver *solver, double *x, double h,
                 void *context, int *global);
 
 
-double errors (double *x, double *y, Solver *solver);
+double Errors (double *x, double *y, Solver *solver);
 
 
 #endif //UNTITLED35_METHODS_H

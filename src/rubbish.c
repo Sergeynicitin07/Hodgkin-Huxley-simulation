@@ -1,4 +1,4 @@
-#include "trash.h"
+#include "rubbish.h"
 #include "great_app_test.h"
 #include <stdlib.h>
 #include "struct.h"
@@ -148,4 +148,41 @@ void calculus1 (Solver *solver, double *x, double h,
     }
 
 }
-*/
+
+
+
+
+void trapezoid (Solver *solver, double *x, double h,
+                void (*f) (double *x, double *fx, void *context, int *global),
+                void *context, int *global) {
+    int i;
+    // must to have new x[...]
+    for (i = 0; i < solver->n; i++) {
+        (*solver).xarr[i] = x[i];
+    }
+    // rk4 (solver, solver->xarr, h, f, context, &global);
+    f(solver->xarr, solver->k1,
+      context, global);
+
+    for (i = 0; i < solver->n; i++)
+        solver->xarr[i] = x[i] + h * solver->k1[i];
+    f(solver->xarr, solver->k2,
+      context, global);
+
+    for (i = 0; i < solver->n; i++) {
+        x[i] = x[i] + (h / 2) * (solver->k1[i] + solver->k2[i]);
+    }
+}
+
+ double absolute (double x4, double x5) {
+    if (x4 - x5 > 0.0)
+        return (x4 - x5);
+    else if (x5 - x4 > 0.0)
+        return (x5 - x4);
+    else
+        return 0;
+}
+ */
+
+
+

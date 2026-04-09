@@ -21,6 +21,7 @@ typedef struct {
 // Инициализация
 void init (Neural_data *n, double time, double h);
 
+
 void push_neural (Neural_data *n, double h, double v);
 
 // Инициализация
@@ -39,7 +40,7 @@ void turn_out (Solver *solver, double *x, double *xbasa);
 double MAX (double a, double b);
 
 
-void accuracy_calculus (Test_slop *r, Neural_data *n,  double tol, int *global);
+void accuracy_calculus (Test_slop *r, Neural_data *n,  double tol, int *global, double *maxic, double h);
 
 
 void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h,

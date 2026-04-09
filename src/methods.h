@@ -10,6 +10,9 @@
 void f(double *x, double *fx, void *context,int *global);
 
 
+double Errors1 (Solver *solver);
+
+
 void midpoint (Solver *solver, double *x, double h,
                void (*f) (double *x, double *fx, void *context, int *global),
                void *context, int *global);
@@ -23,14 +26,6 @@ void rk4 (Solver *solver, double *x, double h,
 double Dormand_Prince (Solver *solver, double *x, double h,
                        void (*f) (double *x, double *fx, void *context, int *global),
                        void *context,  double tol, int *global);
-
-
-double absolute (double x4, double x5);
-
-
-void trapezoid (Solver *solver, double *x, double h,
-                void (*f) (double *x, double *fx, void *context, int *global),
-                void *context, int *global);
 
 
 double Errors (double *x, double *y, Solver *solver);

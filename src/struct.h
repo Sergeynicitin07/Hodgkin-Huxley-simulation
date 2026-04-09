@@ -4,6 +4,9 @@
 
 typedef struct {
     int n;
+    double *tol;
+    double *Atol;
+    double *Rtol;
     double *k1;
     double *k2;
     double *k3;

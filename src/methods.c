@@ -1,21 +1,11 @@
 #include "methods.h"
 
 
-double absolute (double x4, double x5) {
-    if (x4 - x5 > 0.0)
-        return (x4 - x5);
-    else if (x5 - x4 > 0.0)
-        return (x5 - x4);
-    else
-        return 0;
-}
-
-
 double Errors (double *x, double *y, Solver *solver) {
     int i;
 
     for (i = 0; i < solver->n; i++) {
-        solver->err[i] = absolute(x[i], y[i]);
+        solver->err[i] = fabs(x[i] - y[i]);
     }
     double err_max = 0.0;
     for (i = 0; i < solver->n; i++) {
@@ -24,6 +14,26 @@ double Errors (double *x, double *y, Solver *solver) {
         }
     }
     return err_max;
+}
+
+// Нахождение ошибки методом с лекции (MC number one)
+double Errors1 (Solver *solver) {
+    int i;
+    double m = solver->n;
+    for (i = 0; i < solver->n; i++) {
+        solver->tol[i] = solver->Atol[i] + solver->Rtol[i] * fmax(fabs(solver->Y_5[i]), fabs(solver->Y_4[i]));
+    }
+
+
+    for (i = 0; i < solver->n; i++) {
+        solver->err[i] = (fabs(solver->Y_4[i] - solver->Y_5[i]) / solver->tol[i]);
+    }
+    double err_GIPER_SUPER_GIGA_SLOP = 0.0;
+    for (i = 0; i < solver->n; i++) {
+        err_GIPER_SUPER_GIGA_SLOP += solver->err[i] * solver->err[i];
+    }
+    err_GIPER_SUPER_GIGA_SLOP = sqrt(1.0 / m * err_GIPER_SUPER_GIGA_SLOP);
+    return err_GIPER_SUPER_GIGA_SLOP;
 }
 
 
@@ -54,7 +64,6 @@ void rk4 (Solver *solver, double *x, double h,
                            + 2 * solver->k2[i] + solver->k1[i]);
     }
 }
-
 
 // Метод средней точки
 void midpoint (Solver *solver, double *x, double h,
@@ -161,9 +170,44 @@ double Dormand_Prince (Solver *solver, double *x, double h,
 
         // Найдем норму бесконечности (infinity norm)
         double E = Errors(solver->Y_5, solver->Y_4, solver);
+        // this method to deserve the out
+        /*
+        double E1 = Errors1(solver);
 
-        // Если максимальный модуль разницы меньше дельта -> получаем результат
-        if (E < delta) {
+        if (E1 < 1.0) {
+            for (i = 0; i < solver->n; i++) {
+                x[i] = solver->Y_5[i];
+
+            }
+
+            // delta / E будет больше 1.0
+            // Шаг увеличивается
+            if (E1 > 1e-15) {
+                // Мы вычисляем оптимальный интервал времени
+                hopt = h * pow((1.0 / E1), 1.0 / p);
+            } else {
+                // Обработка нуля
+                E1 = 1e-15;
+                hopt = h * pow((1.0 / E1), 1.0 / p);
+            }
+            break;
+        }
+
+
+        // Error per step control
+        if (E1 > 1.0) {
+            // Мы вычисляем оптимальный интервал времени
+            hopt = h * pow((1.0 / E1), 1.0 / p);
+            h = hopt;
+        } else {
+            // Обработка 1.0
+            E1 = 1.0;
+            hopt = h * pow((1.0 / E1), 1.0 / p);
+            h = hopt;
+        }
+
+        count ++;
+        if (count > 100) {
             for (i = 0; i < solver->n; i++) {
                 x[i] = solver->Y_5[i];
 
@@ -171,21 +215,47 @@ double Dormand_Prince (Solver *solver, double *x, double h,
             break;
         }
 
+    }
+
+    // Возвращаем оптимальную единицу шага типа double
+    return hopt;*/
+
+
+        // Если максимальный модуль разницы меньше дельта -> получаем результат
+        if (E < delta) {
+            for (i = 0; i < solver->n; i++) {
+                x[i] = solver->Y_5[i];
+
+            }
+
+            // delta / E будет больше 1.0
+            // Шаг увеличивается
+            if (E > 1e-15) {
+                // Мы вычисляем оптимальный интервал времени
+                hopt = 0.9 * h * pow(((delta) / (E)), ((1.0) / (p + 1.0)));
+            } else {
+                // Обработка нуля
+                E = 1e-15;
+                hopt = 0.9 * h * pow(((delta) / (E)), ((1.0) / (p + 1.0)));
+            }
+            break;
+        }
+
 
         // Error per step control
-        if (E > 1e-14) {
+        if (E > 1e-15) {
             // Мы вычисляем оптимальный интервал времени
             hopt = 0.9 * h * pow(((delta) / (E)), ((1.0) / (p + 1.0)));
             h = hopt;
         } else {
             // Обработка нуля
-            E = 1e-14;
+            E = 1e-15;
             hopt = 0.9 * h * pow(((delta) / (E)), ((1.0) / (p + 1.0)));
             h = hopt;
         }
 
         count ++;
-        if (count > 10000) {
+        if (count > 100) {
             for (i = 0; i < solver->n; i++) {
                 x[i] = solver->Y_5[i];
 
@@ -199,28 +269,3 @@ double Dormand_Prince (Solver *solver, double *x, double h,
     return hopt;
 
 }
-
-
-
-/*
-void trapezoid (Solver *solver, double *x, double h,
-                void (*f) (double *x, double *fx, void *context, int *global),
-                void *context, int *global) {
-    int i;
-    // must to have new x[...]
-    for (i = 0; i < solver->n; i++) {
-        (*solver).xarr[i] = x[i];
-    }
-    // rk4 (solver, solver->xarr, h, f, context, &global);
-    f(solver->xarr, solver->k1,
-      context, global);
-
-    for (i = 0; i < solver->n; i++)
-        solver->xarr[i] = x[i] + h * solver->k1[i];
-    f(solver->xarr, solver->k2,
-      context, global);
-
-    for (i = 0; i < solver->n; i++) {
-        x[i] = x[i] + (h / 2) * (solver->k1[i] + solver->k2[i]);
-    }
-}*/

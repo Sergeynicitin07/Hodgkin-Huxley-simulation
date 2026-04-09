@@ -8,6 +8,15 @@ Solver *solver_unit (int n){
 
     solver->n = n;
 
+    solver->tol = (double *)malloc(sizeof(double) * n);
+    if (!solver->tol) return NULL;
+
+    solver->Atol = (double *)malloc(sizeof(double) * n);
+    if (!solver->Atol) return NULL;
+
+    solver->Rtol = (double *)malloc(sizeof(double) * n);
+    if (!solver->Rtol) return NULL;
+
     solver->k1 = (double *)malloc(sizeof(double) * n);
     if (!solver->k1) return NULL;
 
@@ -60,6 +69,9 @@ Solver *solver_unit (int n){
 void solver_free(Solver *solver) {
     if (!solver) return;
 
+    free(solver->tol);
+    free(solver->Atol);
+    free(solver->Rtol);
     free(solver->k1);
     free(solver->k2);
     free(solver->k3);

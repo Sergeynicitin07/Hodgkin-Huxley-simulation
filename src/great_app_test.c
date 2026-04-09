@@ -3,7 +3,7 @@
 #include "methods.h"
 #include "model.h"
 
-// Инициализация
+// Инициализация для точных данных
 void init (Neural_data *n, double time, double h) {
     n->capacity = (int) (time / h);
     n->rows = 0;
@@ -23,7 +23,7 @@ void push_neural (Neural_data *n, double h, double v) {
     n->rows++;
 }
 
-// Инициализация
+// Инициализация для гипотетических данных
 void initi (Test_slop *r, double time, double h) {
     r->capacity = (int) (time / h);
     r->rows = 0;
@@ -60,27 +60,21 @@ void turn_out (Solver *solver, double *x, double *xbasa) {
 
 }
 
-// Максимум двух чисел
-double MAX (double a, double b) {
-    if (a >= b) return a;
-    else
-        return b;
-}
 
-
-void accuracy_calculus (Test_slop *r, Neural_data *n,  double tol, int *global) {
+void accuracy_calculus (Test_slop *r, Neural_data *n,  double tol, int *global, double *maxic, double h) {
     int i = 0;
     int j = 0;
 
     double v_r1 = r->data[i * 2 + 1];
+    double s;
     // Найдем ошибку при t = 0
-    double time_slop = MAX(absolute(v_r1, n->data[1]), 0.0);
+    double time_slop = fmax(fabs(v_r1 -  n->data[1]), 0.0);
 
     for (i = 1; i < r->rows; i ++) {
         double t_r = r->data[i * 2 + 0];
         double v_r = r->data[i * 2 + 1];
 
-        while ( n->data[(j + 1) * 2] < t_r && j < n->rows - 1) {
+        while (n->data[(j + 1) * 2] < t_r && j < n->rows - 1) {
             j++;
         }
         double t1 = n->data[j * 2 + 0];
@@ -89,19 +83,26 @@ void accuracy_calculus (Test_slop *r, Neural_data *n,  double tol, int *global) 
         // t_r уже меньше t2
         double t2 = n->data[(j + 1) * 2 + 0];
         double v2 = n->data[(j + 1) * 2 + 1];
+
         if (t1 <= t_r && t2 >= t_r) {
-            if (absolute(t1, t_r) <= absolute(t2, t_r)){
-                time_slop = MAX(absolute(v1, v_r), time_slop);
-            } else {
-                time_slop = MAX(absolute(v2, v_r), time_slop);
-            }
+            s = (t_r - t1) / (t2 - t1);
+            time_slop = fmax(fabs(v_r - ((1 - s) * v1 + s * v2)), time_slop);
         }
+        /*
+        if (t1 <= t_r && t2 >= t_r) {
+            if (fabs(t1 - t_r) <= fabs(t2 - t_r)){
+                time_slop = fmax(fabs(v1 - v_r), time_slop);
+            } else {
+                time_slop = fmax(fabs(v2 - v_r), time_slop);
+            }
+        }*/
 
     }
+    *maxic = time_slop;
     if (time_slop < tol) {
-        printf("MAX error - %.20f    tol - %.2e    count - %d\n", time_slop, tol, *global);
+        printf("MAX error - %.15le\ttol - %.15le\tcount - %d\th - %15le\n", time_slop, tol, *global, h);
     }
-    else printf("Measure is smaller than MAX - %lf\n", time_slop);
+    // else printf("Measure is smaller than MAX - %15le    tol - %.15le    count - %d\n", time_slop, tol, *global);
 
 }
 
@@ -111,14 +112,20 @@ void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h
                void *context,  double tol, double t, double t_end, int *global) {
     // ideal
     Params *p = (Params *)context;
-    double h1 = h;
-    double h2 = h;
+    double h1 = 1e-3;
+    double h2 = 1.000000000000001e-1;
+    double h3 = 1e-0;
+
+    double maxic = 0.0;
     double ideal_h = 1e-5;
     double tol1 = 1e-14;
+    double tol2 = 1e-14;
     double dif = t_end - t;
     init(n, dif, ideal_h);
     initi(r, dif, h1);
     double h_long = ideal_h;
+    int i;
+    int g = 40;
     // Экспериментов много, сохраним входные данные
     double *xbasa = malloc(sizeof(double) * solver->n);
     turn_in(solver, x, xbasa);
@@ -126,50 +133,69 @@ void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h
     while (t < t_end) {
         h_long = Dormand_Prince (solver, x, h_long, f, &p, tol1, global);
         if (h_long < 1e-14) {
-            h_long = 1e-13;
+            h_long = 1e-14;
         }
         t += h_long;
 
         push_neural(n, t, x[0]);
 
     }
-    *global = 0;
-    t = 0;
-    turn_out(solver, x, xbasa);
-    push_neurali(r, t, x[0]);
-    while (t < t_end) {
-        rk4 (solver, x, h1, f, &p, global);
-        t += h1;
+    printf("Dormand_Prince\tIDOL\tcount - %d\n", *global);
+
+    printf("Runge-Kutte 4\n");
+    for (i = 0; i < g; i ++) {
+        *global = 0;
+        t = 0.0;
+        h1 *= 0.5;
+        maxic = 0.0;
+        r->rows = 0;
+        turn_out(solver, x, xbasa);
         push_neurali(r, t, x[0]);
+        while (t < t_end) {
+            rk4 (solver, x, h1, f, &p, global);
+            t += h1;
+            push_neurali(r, t, x[0]);
+        }
+        accuracy_calculus (r, n, tol, global, &maxic, h1);
+        if (maxic < tol) break;
     }
-    accuracy_calculus (r, n, tol, global);
+
+    printf("Dormand_Prince\n");
     r->rows = 0;
     *global = 0;
-    t = 0;
+    t = 0.0;
+    maxic = 0.0;
     turn_out(solver, x, xbasa);
     push_neurali(r, t, x[0]);
     while (t < t_end) {
-        h2 = Dormand_Prince (solver, x, h2, f, &p, tol, global);
+        h2 = Dormand_Prince (solver, x, h2, f, &p, tol2, global);
         t += h2;
         push_neurali(r, t, x[0]);
 
     }
-    accuracy_calculus (r, n, tol, global);
-    r->rows = 0;
-    *global = 0;
-    t = 0;
-    turn_out(solver, x, xbasa);
-    push_neurali(r, t, x[0]);
-    while (t < t_end) {
-        midpoint (solver, x, h1, f, &p, global);
-        t += h1;
+    accuracy_calculus (r, n, tol, global, &maxic, h2);
+
+    printf("Midpoint\n");
+    for (i = 0; i < g; i ++) {
+        r->rows = 0;
+        *global = 0;
+        t = 0.0;
+        maxic = 0.0;
+
+        h3 *= 0.5;
+        turn_out(solver, x, xbasa);
         push_neurali(r, t, x[0]);
+        while (t < t_end) {
+            midpoint(solver, x, h3, f, &p, global);
+            t += h3;
+            push_neurali(r, t, x[0]);
+        }
+        accuracy_calculus(r, n, tol, global, &maxic, h3);
+        if (maxic < tol) break;
 
 
     }
-    accuracy_calculus (r, n, tol, global);
     free(n->data);
     free(r->data);
     free(xbasa);
-
 }

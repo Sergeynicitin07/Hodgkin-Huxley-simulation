@@ -1,3 +1,4 @@
+
 set xlabel "t (ms)"
 set ylabel "Membrane potential V (mV)"
 set title "Hodgkin-Huxley model with different Iext"

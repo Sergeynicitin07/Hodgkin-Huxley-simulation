@@ -109,17 +109,18 @@ void accuracy_calculus (Test_slop *r, Neural_data *n,  double tol, int *global, 
 
 void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h,
                void (*f) (double *x, double *fx, void *context, int *global),
-               void *context,  double tol, double t, double t_end, int *global) {
+               void *context,  double tol, double t, double t_end, int *global, double as, double hk) {
     // ideal
     Params *p = (Params *)context;
-    double h1 = 1e-3;
-    double h2 = 1.000000000000001e-1;
+    double h1 = 1e-0;
+    double h2 = hk;
     double h3 = 1e-0;
+    double super_h = 1e-5;
 
     double maxic = 0.0;
     double ideal_h = 1e-5;
     double tol1 = 1e-14;
-    double tol2 = 1e-14;
+    double tol2 = as;
     double dif = t_end - t;
     init(n, dif, ideal_h);
     initi(r, dif, h1);
@@ -130,6 +131,14 @@ void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h
     double *xbasa = malloc(sizeof(double) * solver->n);
     turn_in(solver, x, xbasa);
     push_neural(n, t, x[0]);
+
+    while (t < t_end) {
+        rk4 (solver, x, super_h, f, &p, global);
+        t += super_h;
+        push_neural(n, t, x[0]);
+
+    }
+    /*
     while (t < t_end) {
         h_long = Dormand_Prince (solver, x, h_long, f, &p, tol1, global);
         if (h_long < 1e-14) {
@@ -139,8 +148,8 @@ void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h
 
         push_neural(n, t, x[0]);
 
-    }
-    printf("Dormand_Prince\tIDOL\tcount - %d\n", *global);
+    }*/
+    printf("RK4_DEUS_EX_MACHINA\tIDOL\tcount - %d\n", *global);
 
     printf("Runge-Kutte 4\n");
     for (i = 0; i < g; i ++) {

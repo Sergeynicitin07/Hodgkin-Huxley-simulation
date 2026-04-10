@@ -45,7 +45,7 @@ void accuracy_calculus (Test_slop *r, Neural_data *n,  double tol, int *global, 
 
 void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h,
                void (*f) (double *x, double *fx, void *context, int *global),
-               void *context,  double tol, double t, double t_end, int *global);
+               void *context,  double tol, double t, double t_end, int *global, double as, double hk);
 
 
 #endif //UNTITLED35_GREAT_APP_TEST_H

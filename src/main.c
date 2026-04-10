@@ -25,11 +25,11 @@ int main(int argc, char *argv[]) {
 
     Params p;
 
-    double h = 1e-5;
+    double h = 1e-4;
     double t = 0.0;
-    double t_end = 100.0;
+    double t_end = 10.0;
     char method[20] = "dp";
-    int use_calculus = 0;
+    int use_calculus = 1;
 
     if (argc > 1)
         strcpy(method, argv[1]);
@@ -38,13 +38,17 @@ int main(int argc, char *argv[]) {
         h = atof(argv[2]);
 
     p.Iext = -10.0;
-
+    double hk = 1.0000000000001;
+    double as = 1e-14;
     if (argc > 3)
         p.Iext = -atof(argv[3]);
 
     if (argc > 4)
         use_calculus = atoi(argv[4]); // 1 = calculus режим
-
+    if (argc > 5)
+        as = atof(argv[5]);
+    if (argc > 6)
+        hk = atof(argv[5]);
     // Для calculus - теста
     double tol = h;
     int global = 0;
@@ -55,7 +59,7 @@ int main(int argc, char *argv[]) {
         Test_slop *r = malloc(sizeof(Test_slop));
         Neural_data *j = malloc(sizeof(Neural_data));
 
-        calculus(r, j, solver, x, h, f, &p, tol, t, t_end, &global);
+        calculus(r, j, solver, x, h, f, &p, tol, t, t_end, &global, as, hk);
 
         free(r);
         free(j);
@@ -71,7 +75,7 @@ int main(int argc, char *argv[]) {
                 t += h;
             }
             else if (strcmp(method, "dp") == 0) {
-                h_long = Dormand_Prince (solver, x, h_long, f, &p, tol, &global);
+                h_long = Dormand_Prince (solver, x, h_long, f, &p, as, &global);
                 t += h_long;
             }
             else if (strcmp(method, "mid") == 0) {

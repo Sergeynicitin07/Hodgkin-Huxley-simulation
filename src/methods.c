@@ -41,6 +41,7 @@ double Errors1 (Solver *solver) {
 void rk4 (Solver *solver, double *x, double h,
           void (*f) (double *x, double *fx, void *context, int *global),
           void *context, int *global){
+    if (h > 5e-2) h = 5e-2;
     int i;
     f(x, (*solver).k1,
             context, global);
@@ -70,6 +71,7 @@ void midpoint (Solver *solver, double *x, double h,
                void (*f) (double *x, double *fx, void *context, int *global),
                void *context, int *global){
     int j;
+    if (h > 5e-2) h = 5e-2;
     f(x, (*solver).k1,
       context, global);
     for (j = 0; j < solver->n; j ++) {

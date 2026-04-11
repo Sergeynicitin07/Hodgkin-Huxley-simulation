@@ -88,6 +88,7 @@ double Dormand_Prince (Solver *solver, double *x, double h,
                        void *context,  double delta, int *global) {
     int i;
     int count = 0;
+    if (delta < 1e-14) delta = 1e-14;
     // Параметр оптимального интервала времени
     double hopt = h;
     // Создадим цикл для нахождения оптимального значения и интервала

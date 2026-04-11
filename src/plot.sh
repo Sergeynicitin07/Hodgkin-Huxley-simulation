@@ -1,20 +1,19 @@
 #!/bin/bash
-# Plot V(t) from the last normal simulation
+IEXT=${1:-10}
+H=${2:-0.01}
+TOL=${3:-1e-10}
 
-if [ ! -f dp_normal.txt ]; then
-    echo "Error: dp_normal.txt not found. Run ./test_all.sh first."
-    exit 1
-fi
+./run.sh rk4  "$H" "$IEXT" 1e-14 0.01 0
+./run.sh dp   "$H" "$IEXT" "$TOL" "$H" 0
+./run.sh mid  "$H" "$IEXT" 1e-14 0.01 0
 
-echo "Plotting V(t) using gnuplot..."
 gnuplot -persist << EOF
-set title "Hodgkin-Huxley Model — Membrane Potential V(t)"
+set title "Hodgkin-Huxley V(t) — Iext = $IEXT"
 set xlabel "Time (ms)"
 set ylabel "V (mV)"
 set grid
-plot "dp_normal.txt" using 1:2 with lines title "V(t)" lw 2 lc rgb "blue"
+set key top right
+plot "rk4.dat"  u 1:2 w l lc rgb "red"    title "RK4", \
+     "dp.dat"   u 1:2 w l lc rgb "blue"   title "Dormand-Prince", \
+     "mid.dat"  u 1:2 w l lc rgb "green"  title "Midpoint"
 EOF
-
-
-
-

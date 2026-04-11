@@ -40,7 +40,7 @@ void turn_out (Solver *solver, double *x, double *xbasa);
 double MAX (double a, double b);
 
 
-void accuracy_calculus (Test_slop *r, Neural_data *n,  double tol, int *global, double *maxic, double h);
+void accuracy_calculus (Test_slop *r, Neural_data *n,  double tol, int *global, double *maxic, double h, int *j);
 
 
 void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h,
@@ -48,4 +48,4 @@ void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h
                void *context,  double tol, double t, double t_end, int *global, double as, double hk);
 
 
-#endif //UNTITLED35_GREAT_APP_TEST_H
+#endif //UNTITLED35_GREAT_APP_TEST_Ha

@@ -1,18 +1,18 @@
 #!/bin/bash
-# Usage: ./run.sh <method> [step] [Iext] [calculus]
-# method: dp | rk4 | mid
-# calculus: 0 = normal mode, 1 = accuracy test (calculus)
-
 METHOD=${1:-dp}
-STEP=${2:-0.01}
-IEXT=${3:--10}
-CALCULUS=${4:-0}
+H=${2:-0.01}
+IEXT=${3:-10}          # WE WRITE POSITIVE
+TOL=${4:-1e-10}
+HK=${5:-0.01}
+CALC=${6:-0}
 
-if [ $CALCULUS -eq 1 ]; then
-    echo "Running in calculus comparison mode..."
-    ./hh_sim "$METHOD" "$STEP" "$IEXT" 1
+IEXT_NEG=$(( -IEXT ))
+
+if [ $CALC -eq 1 ]; then
+    echo "Calculus mode"
+    ./hh_sim "$METHOD" "$H" "$IEXT_NEG" 1 "$TOL" "$HK"
 else
-    echo "Running $METHOD method (normal simulation)"
-    echo "Step: $STEP | Iext: $IEXT | t_end = 100.0"
-    ./hh_sim "$METHOD" "$STEP" "$IEXT" 0
+    echo "Normal mode: $METHOD | h=$H | Iext=$IEXT (internal -$IEXT)"
+    ./hh_sim "$METHOD" "$H" "$IEXT_NEG" 0 "$TOL" "$HK" > "${METHOD}.dat"
+    echo "Saved → ${METHOD}.dat"
 fi

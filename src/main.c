@@ -6,11 +6,13 @@
 #include <stdlib.h>
 #include "great_app_test.h"
 #include "rubbish.h"
+#include <time.h>
 
 
 int main(int argc, char *argv[]) {
     int n = 4;
-
+    clock_t start = clock();
+    double time_limit = 2.0;
     Solver *solver = solver_unit(n);
     solver->Atol[0] = 1e-14;
     solver->Atol[1] = 1e-14;
@@ -25,11 +27,11 @@ int main(int argc, char *argv[]) {
 
     Params p;
 
-    double h = 2e-1;
+    double h = 1e-1;
     double t = 0.0;
-    double t_end = 100.0;
-    char method[20] = "dp";
-    int use_calculus = 1;
+    double t_end = 100000.0;
+    char method[20] = "mid";
+    int use_calculus = 0;
 
     if (argc > 1)
         strcpy(method, argv[1]);
@@ -38,7 +40,7 @@ int main(int argc, char *argv[]) {
         h = atof(argv[2]);
 
     p.Iext = -10.0;
-    double hk = 0.00001;
+    double hk = 0.01;
     double as = 1e-10;
     if (argc > 3)
         p.Iext = -atof(argv[3]);
@@ -56,6 +58,7 @@ int main(int argc, char *argv[]) {
     double tol = h;
     int global = 0;
 
+
     double x[4] = {0.0, 0.042, 0.608, 0.6};
 
     if (use_calculus) {
@@ -71,6 +74,11 @@ int main(int argc, char *argv[]) {
         double h_long = hk;
 
         while (t < t_end) {
+            double elapsed = (double)(clock() - start) / CLOCKS_PER_SEC;
+            if (elapsed > time_limit) {
+                printf("Time is over for data in 0 control unit  test\n");
+                break;
+            }
             printf("%lf %lf %lf %lf %lf\n",
                    t, x[0], x[1], x[2], x[3]);
             if (strcmp(method, "rk4") == 0) {

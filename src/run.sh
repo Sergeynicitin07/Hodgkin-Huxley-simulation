@@ -8,7 +8,7 @@ HK=${6:-0.01}
 AS=${7:-1e-10}
 
 if [ $CALC -eq 1 ]; then
-    echo "Calculus mode
+    echo "Calculus mode"
     echo "method=$METHOD | h=$H | Iext=$IEXT | t_end=$TEND | tol=$AS | hk=$HK"
     ./hh_sim "$METHOD" "$H" "$IEXT" 1 "$TEND" "$HK" "$AS"
 else

@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 
     Params p;
 
-    double h = 1e-4;
+    double h = 2e-1;
     double t = 0.0;
     double t_end = 10.0;
     char method[20] = "dp";
@@ -38,8 +38,8 @@ int main(int argc, char *argv[]) {
         h = atof(argv[2]);
 
     p.Iext = -10.0;
-    double hk = 1.0000000000001;
-    double as = 1e-14;
+    double hk = 0.0001;
+    double as = 1e-10;
     if (argc > 3)
         p.Iext = -atof(argv[3]);
 

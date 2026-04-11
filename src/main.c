@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 
     double h = 2e-1;
     double t = 0.0;
-    double t_end = 10.0;
+    double t_end = 100.0;
     char method[20] = "dp";
     int use_calculus = 1;
 
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
         h = atof(argv[2]);
 
     p.Iext = -10.0;
-    double hk = 0.0001;
+    double hk = 0.00001;
     double as = 1e-10;
     if (argc > 3)
         p.Iext = -atof(argv[3]);
@@ -46,9 +46,12 @@ int main(int argc, char *argv[]) {
     if (argc > 4)
         use_calculus = atoi(argv[4]); // 1 = calculus режим
     if (argc > 5)
-        as = atof(argv[5]);
+        t_end = atof(argv[5]);
     if (argc > 6)
-        hk = atof(argv[5]);
+        hk = atof(argv[6]);
+    if (argc > 7)
+        as = atof(argv[7]);
+
     // Для calculus - теста
     double tol = h;
     int global = 0;
@@ -65,7 +68,7 @@ int main(int argc, char *argv[]) {
         free(j);
     } else {
         tol = 1e-14;
-        double h_long = h;
+        double h_long = hk;
 
         while (t < t_end) {
             printf("%lf %lf %lf %lf %lf\n",

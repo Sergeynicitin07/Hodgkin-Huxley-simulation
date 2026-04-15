@@ -174,6 +174,7 @@ double Dormand_Prince (Solver *solver, double *x, double h,
         // Найдем норму бесконечности (infinity norm)
         double E = Errors(solver->Y_5, solver->Y_4, solver);
         // this method to deserve the out
+
         /*
         double E1 = Errors1(solver);
 
@@ -224,6 +225,7 @@ double Dormand_Prince (Solver *solver, double *x, double h,
     return hopt;*/
 
 
+
         // Если максимальный модуль разницы меньше дельта -> получаем результат
         if (E < delta) {
             for (i = 0; i < solver->n; i++) {
@@ -270,5 +272,4 @@ double Dormand_Prince (Solver *solver, double *x, double h,
 
     // Возвращаем оптимальную единицу шага типа double
     return hopt;
-
 }

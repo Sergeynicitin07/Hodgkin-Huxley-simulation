@@ -1,8 +1,36 @@
 #include "great_app_test.h"
 #include <stdlib.h>
 #include "methods.h"
-#include <time.h>
 #include "model.h"
+#include <stdio.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <time.h>
+#endif
+
+double get_time() {
+#ifdef _WIN32
+    static LARGE_INTEGER freq;
+    static int initialized = 0;
+    LARGE_INTEGER now;
+
+    if (!initialized) {
+        QueryPerformanceFrequency(&freq);
+        initialized = 1;
+    }
+
+    QueryPerformanceCounter(&now);
+    return (double)now.QuadPart / freq.QuadPart;
+
+#else
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    return now.tv_sec + now.tv_nsec / 1e9;
+#endif
+}
+
 
 // Инициализация для точных данных
 void init (Neural_data *n, double time, double h) {
@@ -102,7 +130,7 @@ void accuracy_calculus (Test_slop *r, Neural_data *n,  double tol, int *global, 
     *maxic = time_slop;
     if (time_slop < tol) {
         *chmuck = 1;
-        printf("MAX error - %.15le\ttol - %.1le\tcount - %d\t\th - %15le\n", time_slop, tol, *global, h);
+        printf("MAX error - %.15le\t\tcount - %d\t\t\th - %15le\n", time_slop, *global, h);
     }
     // else printf("Measure is smaller than MAX - %15le    tol - %.15le    count - %d\n", time_slop, tol, *global);
 
@@ -112,19 +140,23 @@ void accuracy_calculus (Test_slop *r, Neural_data *n,  double tol, int *global, 
 void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h,
                void (*f) (double *x, double *fx, void *context, int *global),
                void *context,  double tol, double t, double t_end, int *global, double as, double hk) {
-    clock_t start = clock();
-    double time_limit = 10.0;
+    double start = get_time();
+    double time_limit = 15.0;
+    double time_limit1 = 10.0;
+
     // ideal
     int tel = 0;
+    double h5 = h;
     int *chmuck = &tel;
     Params *p = (Params *)context;
     double h1 = 5e-0;
-    double h2 = hk;
+    double h2 = h;
     double h3 = 5e-0;
     double super_h = 5e-6;
 
     double maxic = 0.0;
     double ideal_h = 5e-6;
+    int key = 0;
     double tol1 = 1e-14;
     double tol2 = as;
     double dif = t_end - t;
@@ -132,7 +164,9 @@ void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h
     initi(r, dif, h1);
     double h_long = ideal_h;
     int i;
+    int ui = 0;
     int g = 14;
+    int supremacist = 0;
     // Экспериментов много, сохраним входные данные
     double *xbasa = malloc(sizeof(double) * solver->n);
     turn_in(solver, x, xbasa);
@@ -142,14 +176,43 @@ void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h
         rk4 (solver, x, super_h, f, &p, global);
         t += super_h;
         push_neural(n, t, x[0]);
-        double elapsed = (double)(clock() - start) / CLOCKS_PER_SEC;
-        if (elapsed > time_limit) {
-            printf("Time\tis\tover\tfor\tideal\tdata.\nWe\tmust\tto\tstop.\n");
+        double elapsed = get_time() - start;
+        if (elapsed > time_limit1) {
+            printf("Time\tis\tover\tfor\tRK4\tideal.\tIdeal\th - %15le\n", super_h);
+            supremacist = 1;
             break;
         }
 
     }
-    start = clock();
+    start = get_time();
+    if (supremacist) {
+        *global = 0;
+        super_h = 1e-3;
+
+        printf("It`s\ttime\tfor\tnew\tideal\twith\tnew\th - %15le\n", super_h);
+        t = 0.0;
+        n->rows = 0;
+
+        while (t < t_end) {
+            double elapsed = get_time() - start;
+            if (elapsed > time_limit) {
+                printf("Time\tis\tover\tfor\tRK4\tideal.\tIdeal\th - %15le\n", super_h);
+                key = 1;
+                break;
+            }
+            rk4 (solver, x, super_h, f, &p, global);
+            t += super_h;
+            push_neural(n, t, x[0]);
+        }
+
+
+    }
+
+    if (key) {
+        printf("Time\tis\tover\tfor\tideal\tdata.\nWe\tshould\tto\tstop\tall.\n");
+        exit(0);
+    }
+    start = get_time();
     /*
     while (t < t_end) {
         h_long = Dormand_Prince (solver, x, h_long, f, &p, tol1, global);
@@ -164,8 +227,8 @@ void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h
         push_neural(n, t, x[0]);
 
     }*/
-    printf("RK4_DEUS_EX_MACHINA\tIDOL\tcount - %d\n", *global);
-    start = clock();
+    printf("RK4_DEUS_EX_MACHINA\tIDOL\tcount - %d\tglobal\ttolerance - %.1le\n", *global, tol);
+    start = get_time();
     printf("Runge-Kutte 4\n");
     for (i = 0; i < g; i ++) {
         *global = 0;
@@ -179,22 +242,25 @@ void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h
         turn_out(solver, x, xbasa);
         push_neurali(r, t, x[0]);
         while (t < t_end) {
-            double elapsed = (double)(clock() - start) / CLOCKS_PER_SEC;
+            double elapsed = get_time() - start;
             if (elapsed > time_limit) {
-                printf("Time is over for RK4 ideal\n");
+                printf("Time\tis\tover\tfor\tRK4.\n");
+                ui = 1;
                 break;
             }
             rk4 (solver, x, h1, f, &p, global);
             t += h1;
             push_neurali(r, t, x[0]);
         }
+        if (ui) break;
         accuracy_calculus (r, n, tol, global, &maxic, h1, chmuck);
         if (maxic < tol) break;
     }
-    if (*chmuck == 0) {
-        printf("Measure is smaller than max error.\ttol - %.1le\tcount - %d\t\th - %15le\n", tol, *global, h);
+    if (*chmuck == 0 && ui == 0) {
+        printf("Measure\tis\tsmaller\tthan\tmax\terror.\tcount - %d\t\th - %15le\n", *global, h1);
     }
-    start = clock();
+    start = get_time();
+    ui = 0;
     printf("Dormand_Prince\n");
     r->rows = 0;
     *global = 0;
@@ -204,9 +270,10 @@ void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h
     turn_out(solver, x, xbasa);
     push_neurali(r, t, x[0]);
     while (t < t_end) {
-        double elapsed = (double)(clock() - start) / CLOCKS_PER_SEC;
+        double elapsed = get_time() - start;
         if (elapsed > time_limit) {
-            printf("Time is over for Dormand-Prince\n");
+            printf("Time\tis\tover\tfor\tDormand-Prince\n");
+            ui = 1;
             break;
         }
         h2 = Dormand_Prince (solver, x, h2, f, &p, tol2, global);
@@ -215,10 +282,11 @@ void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h
 
     }
     accuracy_calculus (r, n, tol, global, &maxic, hk, chmuck);
-    if (*chmuck == 0) {
-        printf("Measure is smaller than max error.\ttol - %.1le\tcount - %d\t\th - %15le\n", tol, *global, hk);
+    if (*chmuck == 0 && ui == 0) {
+        printf("Measure\tis\tsmaller\tthan\tmax\terror.\tcount - %d\t\t\th - %15le\n", *global, hk);
     }
-    start = clock();
+    ui = 0;
+    start = get_time();
     printf("Midpoint\n");
     for (i = 0; i < g; i ++) {
         r->rows = 0;
@@ -232,22 +300,24 @@ void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h
         turn_out(solver, x, xbasa);
         push_neurali(r, t, x[0]);
         while (t < t_end) {
-            double elapsed = (double)(clock() - start) / CLOCKS_PER_SEC;
+            double elapsed = get_time() - start;
             if (elapsed > time_limit) {
-                printf("Time is over for Midpoint\n");
+                printf("Time\tis\tover\tfor\tMidpoint\n");
+                ui = 1;
                 break;
             }
             midpoint(solver, x, h3, f, &p, global);
             t += h3;
             push_neurali(r, t, x[0]);
         }
+        if (ui) break;
         accuracy_calculus(r, n, tol, global, &maxic, h3, chmuck);
         if (maxic < tol) break;
 
 
     }
-    if (*chmuck == 0) {
-        printf("Measure is smaller than max error.\ttol - %.1le\tcount - %d\t\th - %15le\n", tol, *global, h);
+    if (*chmuck == 0 && ui == 0) {
+        printf("Measure\tis\tsmaller\tthan\tmax\terror.\tcount - %d\t\t\th - %15le\n", *global, h3);
     }
     free(n->data);
     free(r->data);

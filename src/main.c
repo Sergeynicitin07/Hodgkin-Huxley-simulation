@@ -14,14 +14,14 @@ int main(int argc, char *argv[]) {
     clock_t start = clock();
     double time_limit = 2.0;
     Solver *solver = solver_unit(n);
-    solver->Atol[0] = 1e-14;
-    solver->Atol[1] = 1e-14;
-    solver->Atol[2] = 1e-14;
-    solver->Atol[3] = 1e-14;
+    solver->Atol[0] = 1e-15;
+    solver->Atol[1] = 1e-15;
+    solver->Atol[2] = 1e-15;
+    solver->Atol[3] = 1e-15;
 
-    solver->Rtol[0] = 1e-15;
-    solver->Rtol[1] = 1e-15;
-    solver->Rtol[2] = 1e-15;
+    solver->Rtol[0] = 1e-1;
+    solver->Rtol[1] = 1e-1;
+    solver->Rtol[2] = 1e-1;
     solver->Rtol[3] = 1e-15;
 
 
@@ -29,36 +29,45 @@ int main(int argc, char *argv[]) {
 
     double h = 1e-1;
     double t = 0.0;
-    double t_end = 100000.0;
+    double t_end = 10.0;
     char method[20] = "mid";
-    int use_calculus = 0;
+    int use_calculus = 1;
 
     if (argc > 1)
         strcpy(method, argv[1]);
 
     if (argc > 2)
-        h = atof(argv[2]);
+        use_calculus = atoi(argv[2]); // 1 = calculus режим
+
 
     p.Iext = -10.0;
-    double hk = 0.01;
+    double hk = 1e-1;
+    double tol = 1e-1;
     double as = 1e-10;
     if (argc > 3)
         p.Iext = -atof(argv[3]);
 
     if (argc > 4)
-        use_calculus = atoi(argv[4]); // 1 = calculus режим
+        t_end = atof(argv[4]);
+
     if (argc > 5)
-        t_end = atof(argv[5]);
+        h = atof(argv[5]);
     if (argc > 6)
-        hk = atof(argv[6]);
+        tol = atof(argv[6]);
     if (argc > 7)
         as = atof(argv[7]);
-
+    /*
+    if (argc > 8)
+        solver->Rtol[0] = atof(argv[8]);
+    if (argc > 9)
+        solver->Rtol[1] = atof(argv[9]);
+    if (argc > 10)
+        solver->Rtol[2] = atof(argv[10]);
+    if (argc > 11)
+        solver->Rtol[4] = atof(argv[11]);
+     */
     // Для calculus - теста
-    double tol = h;
     int global = 0;
-
-
     double x[4] = {0.0, 0.042, 0.608, 0.6};
 
     if (use_calculus) {

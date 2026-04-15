@@ -1,16 +1,23 @@
 #!/bin/bash
+# Usage: ./diff.sh file1.dat file2.dat [title]
 
-IEXT=${1:-10}
-H=${2:-0.1}
-TEND=${3:-10.0}
-HK=${4:-0.01}
-AS=${5:-1e-10}
+FILE1=${1:-dp.dat}
+FILE2=${2:-rk4.dat}
+TITLE=${3:-"Difference V($FILE1) - V($FILE2)"}
 
-echo "Running all 3 methods | h=$H | Iext=$IEXT | t_end=$TEND"
+if [ ! -f "$FILE1" ] || [ ! -f "$FILE2" ]; then
+    echo "Error!"
+    exit 1
+fi
 
-./run.sh rk4 "$H" "$IEXT" 0 "$TEND" "$HK" "$AS"
-./run.sh dp  "$H" "$IEXT" 0 "$TEND" "$HK" "$AS"
-./run.sh mid "$H" "$IEXT" 0 "$TEND" "$HK" "$AS"
+gnuplot -persist << EOF
+set title "$TITLE"
+set xlabel "Time (ms)"
+set ylabel "ΔV = V1 - V2 (mV)"
+set grid
+set key top left
 
-./plot.sh
-echo "Graph opened."
+plot "$FILE1" using 1:2 with lines lc rgb "blue" lw 2 title "$FILE1", \
+     "$FILE2" using 1:2 with lines lc rgb "red"  lw 2 title "$FILE2", \
+     "$FILE1" using 1:(column(2) - column(2) from "$FILE2") with lines lc rgb "black" lw 2 title "Difference"
+EOF

@@ -6,9 +6,9 @@ if [ -z "$1" ]; then
     set ylabel "V (mV)"
     set grid
     set key top right
-    plot "rk4.dat" u 1:2 w l lc rgb "red"    title "RK4", \
-         "dp.dat"  u 1:2 w l lc rgb "blue"   title "Dormand-Prince", \
-         "mid.dat" u 1:2 w l lc rgb "green"  title "Midpoint"
+    plot "rk4.txt" u 1:2 w l lc rgb "red"    title "RK4", \
+         "dp.txt"  u 1:2 w l lc rgb "blue"   title "Dormand-Prince", \
+         "mid.txt" u 1:2 w l lc rgb "green"  title "Midpoint"
 EOF
 else
     gnuplot -persist << EOF
@@ -16,6 +16,6 @@ else
     set xlabel "Time (ms)"
     set ylabel "V (mV)"
     set grid
-    plot "$1.dat" u 1:2 w l lc rgb "blue" title "$1"
+    plot "$1.txt" u 1:2 w l lc rgb "blue" title "$1"
 EOF
 fi

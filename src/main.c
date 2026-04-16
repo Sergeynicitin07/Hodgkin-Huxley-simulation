@@ -27,11 +27,11 @@ int main(int argc, char *argv[]) {
 
     Params p;
 
-    double h = 1e-1;
+    double h = 1e-3;
     double t = 0.0;
     double t_end = 10.0;
     char method[20] = "mid";
-    int use_calculus = 1;
+    int use_calculus = 0;
 
     if (argc > 1)
         strcpy(method, argv[1]);
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
         free(j);
     } else {
         tol = 1e-14;
-        double h_long = hk;
+        double h_long = h;
 
         while (t < t_end) {
             double elapsed = (double)(clock() - start) / CLOCKS_PER_SEC;

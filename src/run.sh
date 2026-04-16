@@ -28,8 +28,8 @@ else
 
     echo "method = $METHOD | h = $H | Iext = $IEXT | t_end = $TEND | tol = $TOL | tol_for_dp = $AS"
 
-    ./hh_sim "$METHOD" "$CALC" "$IEXT" "$TEND" "$H" "$TOL" "$AS" > "${METHOD}.dat"
+    ./hh_sim "$METHOD" "$CALC" "$IEXT" "$TEND" "$H" "$TOL" "$AS" > "${METHOD}.txt"
 
-    echo "Data saved → ${METHOD}.dat"
+    echo "Data saved → ${METHOD}.txt"
 
 fi

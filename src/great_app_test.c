@@ -151,6 +151,7 @@ void calculus (Test_slop *r, Neural_data *n, Solver *solver, double *x, double h
     Params *p = (Params *)context;
     double h1 = 5e-0;
     double h2 = h;
+    hk = h;
     double h3 = 5e-0;
     double super_h = 5e-6;
 

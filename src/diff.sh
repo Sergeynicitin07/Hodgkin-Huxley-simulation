@@ -12,7 +12,7 @@ paste "$FILE1" "$FILE2" | awk '
 {
 t = $1
 v1 = $2
-v2 = $7 # 2-й файл: t v ...
+v2 = $7
 print t, v1 - v2
 }
 ' > diff.txt

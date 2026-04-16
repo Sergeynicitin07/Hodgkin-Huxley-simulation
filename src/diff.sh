@@ -32,3 +32,4 @@ plot "diff.txt" using 1:2 with lines lc rgb "black" lw 2 title "diff"
 
 unset multiplot
 EOF
+rm -f diff.txt

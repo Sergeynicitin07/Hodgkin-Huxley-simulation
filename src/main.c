@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
         double h_long = h;
 
         while (t < t_end) {
-            printf("%15le %15le %15le %15le %15le\n",
+            printf("%.15le %.15le %.15le %.15le %.15le\n",
                    t, x[0], x[1], x[2], x[3]);
             if (strcmp(method, "rk4") == 0) {
                 rk4 (solver, x, h, f, &p, &global);

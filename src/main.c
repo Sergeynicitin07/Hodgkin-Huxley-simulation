@@ -83,11 +83,6 @@ int main(int argc, char *argv[]) {
         double h_long = h;
 
         while (t < t_end) {
-            double elapsed = (double)(clock() - start) / CLOCKS_PER_SEC;
-            if (elapsed > time_limit) {
-                printf("Time is over for data in 0 control unit  test\n");
-                break;
-            }
             printf("%lf %lf %lf %lf %lf\n",
                    t, x[0], x[1], x[2], x[3]);
             if (strcmp(method, "rk4") == 0) {

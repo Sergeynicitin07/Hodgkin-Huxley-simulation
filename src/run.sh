@@ -1,35 +1,67 @@
 #!/bin/bash
 
-METHOD=${1:-dp}
-CALC=${2:-2}
+CALC=${1:-1}
 
 if [ "$CALC" -eq 2 ]; then
 
+    IEXT=${2:-10}
     GNA=${3:-120}
     GK=${4:-36}
     GL=${5:-0.3}
+
     VNA=${6:--115}
     VK=${7:-12}
-    VL=${8:--10.613}
+    VL=${8:-10.613}
+
     SN=${9:-1}
     SM=${10:-1}
     SH=${11:-1}
 
     echo "Inverse problem mode"
-    echo "gNa = $GNA | gK = $GK | gL = $GL"
-    echo "VNa = $VNA | VK = $VK | VL = $VL"
-    echo "sn = $SN | sm = $SM | sh = $SH"
 
-    ./hh_sim "$CALC" \
-        "$GNA" "$GK" "$GL" \
-        "$VNA" "$VK" "$VL" \
-        "$SN" "$SM" "$SH" > fit.txt
+    echo "Iext = $IEXT"
+    echo "gNa = $GNA"
+    echo "gK = $GK"
+    echo "gL = $GL"
 
-    echo "Data saved → fit.txt"
+    echo "VNa = $VNA"
+    echo "VK = $VK"
+    echo "VL = $VL"
+
+    echo "sn = $SN"
+    echo "sm = $SM"
+    echo "sh = $SH"
+
+    ./hh_sim 2 \
+        "$IEXT" \
+        "$GNA" \
+        "$GK" \
+        "$GL" \
+        "$VNA" \
+        "$VK" \
+        "$VL" \
+        "$SN" \
+        "$SM" \
+        "$SH" > rk4.txt
+
+    echo "Data saved → rk4.txt"
     echo "Experimental data saved → experiment.txt"
+
+    gnuplot -persist << EOF
+set title "Hodgkin-Huxley model vs experimental data"
+set xlabel "Time (ms)"
+set ylabel "V (mV)"
+set grid
+set key top right
+
+plot \
+    "experiment.txt" using 1:2 with lines title "Experiment", \
+    "rk4.txt" using 1:2 with lines title "RK4 model"
+EOF
 
 elif [ "$CALC" -eq 1 ]; then
 
+    METHOD=${2:-dp}
     IEXT=${3:-10}
     TEND=${4:-10.0}
     H=${5:-0.1}
@@ -40,10 +72,17 @@ elif [ "$CALC" -eq 1 ]; then
 
     echo "method = $METHOD | h = $H | Iext = $IEXT | t_end = $TEND | tol = $TOL | tol_for_dp = $AS"
 
-    ./hh_sim "$CALC" "$METHOD" "$IEXT" "$TEND" "$H" "$TOL" "$AS"
+    ./hh_sim 1 \
+        "$METHOD" \
+        "$IEXT" \
+        "$TEND" \
+        "$H" \
+        "$TOL" \
+        "$AS"
 
 else
 
+    METHOD=${2:-dp}
     IEXT=${3:-10}
     TEND=${4:-10.0}
     H=${5:-0.1}
@@ -54,7 +93,13 @@ else
 
     echo "method = $METHOD | h = $H | Iext = $IEXT | t_end = $TEND | tol = $TOL | tol_for_dp = $AS"
 
-    ./hh_sim "$CALC" "$METHOD" "$IEXT" "$TEND" "$H" "$TOL" "$AS" > "${METHOD}.txt"
+    ./hh_sim 0 \
+        "$METHOD" \
+        "$IEXT" \
+        "$TEND" \
+        "$H" \
+        "$TOL" \
+        "$AS" > "${METHOD}.txt"
 
     echo "Data saved → ${METHOD}.txt"
 

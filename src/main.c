@@ -174,12 +174,7 @@ int main(int argc, char *argv[]) {
     } else if (use_calculus == 0){
         tol = 1e-14;
         double h_long = h;
-        while (t < 51000.0) {
-            printf("%15le %15le %15le %15le %15le\n",
-                   t, -77.5 - x[0], x[1], x[2], x[3]);
-            t += h;
-        }
-        while (t < t_end && t >= 51000) {
+        while (t < t_end) {
 
             printf("%15le %15le %15le %15le %15le\n",
                    t, -77.5 - x[0], x[1], x[2], x[3]);

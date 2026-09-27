@@ -9,8 +9,8 @@ set ylabel "V (mV)"
 set grid
 set key top right
 
-plot "experiment.txt" using 1:2 with lines title "Experiment", \
-     "rk4.txt" using 1:2 with lines title "RK4"
+plot "experiment.txt" using 1:2 with lines lw 2 title "Experiment", \
+     "rk4.txt"       using 1:2 with lines lw 2 title "RK4"
 EOF
 
 elif [ -z "$1" ]; then

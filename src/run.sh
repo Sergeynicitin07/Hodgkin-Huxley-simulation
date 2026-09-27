@@ -1,7 +1,7 @@
 #!/bin/bash
 
 METHOD=${1:-dp}
-CALC=${2:-1}
+CALC=${2:-2}
 
 if [ "$CALC" -eq 2 ]; then
 

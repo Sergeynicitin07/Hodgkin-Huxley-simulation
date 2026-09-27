@@ -1,5 +1,6 @@
 #include <math.h>
 #include "model.h"
+#include "struct.h"
 
 
 void f(double *x, double *fx, void *context, int *global){
@@ -22,26 +23,24 @@ void f(double *x, double *fx, void *context, int *global){
     // Параметр активация калиевых каналов
     double n = x[3];
     // Ёмкость мембраны на единицу площади
-    double Cm = 1.0;
+    double Cm = 0.5;
     // Максимальная способность мембраны пропускать ионы
-    double gNa = 120.0, gK = 36.0, gL = 0.3;
     // Равновесные потенциалы: V = En - Er
     // En - "настоящий" потенциал натрия
     // Er - потенциал спокойствия
-    double VNa = -115.0, VK = 12.0, VL = -10.613;
 
     // Скорость открытия калиевых ворот
-    double alpha_n = 0.01 * (V + 10.0) / (exp((V + 10.0) / 10.0) - 1.0);
+    double alpha_n = sn * (0.01 * (V + 10.0) / (exp((V + 10.0) / 10.0) - 1.0));
     // Скорость закрытия калиевых ворот
-    double beta_n  = 0.125 * exp(V / 80.0);
+    double beta_n  = sn * (0.125 * exp(V / 80.0));
     //Скорость открытия натриевых активирующих ворот
-    double alpha_m = 0.1 * (V + 25.0) / (exp((V + 25.0) / 10.0) - 1.0);
+    double alpha_m = sm * (0.1 * (V + 25.0) / (exp((V + 25.0) / 10.0) - 1.0));
     // Скорость закрытия натриевых активирующих ворот
-    double beta_m  = 4.0 * exp(V / 18.0);
+    double beta_m  = sm * (4.0 * exp(V / 18.0));
     // Скорость снятия инактивации натрия
-    double alpha_h = 0.07 * exp(V / 20.0);
+    double alpha_h = sh * (0.07 * exp(V / 20.0));
     // Скорость инактивации натрия
-    double beta_h  = 1.0 / (exp((30.0 + V) / 10.0) + 1.0);
+    double beta_h  = sh * (1.0 / (exp((30.0 + V) / 10.0) + 1.0));
 
     // Токи
     double INa = gNa * pow(m, 3) * h * (V - VNa);

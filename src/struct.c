@@ -89,3 +89,49 @@ void solver_free(Solver *solver) {
     free(solver->xideal);
     free(solver);
 }
+
+
+Ignominious *lord_structure (int n) {
+    // в нашем разборе n = 401000
+    Ignominious *lord = (Ignominious *)malloc(sizeof(Ignominious));
+    if (!lord) return NULL;
+
+    lord->n = n;
+    lord->ignominious_time = (double *)malloc(sizeof(double) * n);
+    if (!lord->ignominious_time) return NULL;
+
+    lord->ignominious_voltage = (double *)malloc(sizeof(double) * n);
+    if (!lord->ignominious_voltage) return NULL;
+
+    return lord;
+}
+
+
+double tau = 19.7;
+
+// сопротивление 63 мегаома
+double resistance_input = 63.0;
+
+double v_rest = -77.5;
+
+double gNa = 120.0;
+double gK = 36.0;
+double gL = 0.3;
+
+
+double VNa = -115.0;
+double VK = 12.0;
+double VL = -10.613;
+
+double sn = 1.0;
+double sm = 1.0;
+double sh = 1.0;
+
+void lord_free(Ignominious *lord) {
+    if (!lord) return;
+
+    free(lord->ignominious_voltage);
+    free(lord->ignominious_time);
+    free(lord);
+
+}

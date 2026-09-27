@@ -1,34 +1,60 @@
 #!/bin/bash
 
 METHOD=${1:-dp}
+CALC=${2:-1}
 
-CALC=${2:-1}  
+if [ "$CALC" -eq 2 ]; then
 
-IEXT=${3:-10}
+    GNA=${3:-120}
+    GK=${4:-36}
+    GL=${5:-0.3}
+    VNA=${6:--115}
+    VK=${7:-12}
+    VL=${8:--10.613}
+    SN=${9:-1}
+    SM=${10:-1}
+    SH=${11:-1}
 
-TEND=${4:-10.0}
+    echo "Inverse problem mode"
+    echo "gNa = $GNA | gK = $GK | gL = $GL"
+    echo "VNa = $VNA | VK = $VK | VL = $VL"
+    echo "sn = $SN | sm = $SM | sh = $SH"
 
-H=${5:-0.1}
+    ./hh_sim "$CALC" \
+        "$GNA" "$GK" "$GL" \
+        "$VNA" "$VK" "$VL" \
+        "$SN" "$SM" "$SH" > fit.txt
 
-TOL=${6:-1e-1}
+    echo "Data saved → fit.txt"
+    echo "Experimental data saved → experiment.txt"
 
-AS=${7:-1e-10}
+elif [ "$CALC" -eq 1 ]; then
 
-if [ $CALC -eq 1 ]; then
+    IEXT=${3:-10}
+    TEND=${4:-10.0}
+    H=${5:-0.1}
+    TOL=${6:-1e-1}
+    AS=${7:-1e-10}
 
     echo "Calculus mode"
 
     echo "method = $METHOD | h = $H | Iext = $IEXT | t_end = $TEND | tol = $TOL | tol_for_dp = $AS"
 
-    ./hh_sim "$METHOD" "$CALC" "$IEXT" "$TEND" "$H" "$TOL" "$AS"
+    ./hh_sim "$CALC" "$METHOD" "$IEXT" "$TEND" "$H" "$TOL" "$AS"
 
 else
+
+    IEXT=${3:-10}
+    TEND=${4:-10.0}
+    H=${5:-0.1}
+    TOL=${6:-1e-1}
+    AS=${7:-1e-10}
 
     echo "Normal mode"
 
     echo "method = $METHOD | h = $H | Iext = $IEXT | t_end = $TEND | tol = $TOL | tol_for_dp = $AS"
 
-    ./hh_sim "$METHOD" "$CALC" "$IEXT" "$TEND" "$H" "$TOL" "$AS" > "${METHOD}.txt"
+    ./hh_sim "$CALC" "$METHOD" "$IEXT" "$TEND" "$H" "$TOL" "$AS" > "${METHOD}.txt"
 
     echo "Data saved → ${METHOD}.txt"
 

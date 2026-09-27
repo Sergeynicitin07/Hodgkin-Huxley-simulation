@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 
     Params p;
 
-    double h = 1e-2;
+    double h = 1e-3;
     double t = 0.0;
     double t_end = 1000.0;
     char method[20] = "rk4";
@@ -125,33 +125,29 @@ int main(int argc, char *argv[]) {
     if (use_calculus == 2) {
 
 
-    if (argc > 3)
-        gNa = atof(argv[3]);
+        if (argc > 2)
+            gNa = atof(argv[2]);
 
-    if (argc > 4)
-        gK = atof(argv[4]);
+        if (argc > 3)
+            gK = atof(argv[3]);
 
-    if (argc > 5)
-        gL = atof(argv[5]);
+        if (argc > 4)
+            gL = atof(argv[4]);
 
-    if (argc > 6)
-        VNa = atof(argv[6]);
+        if (argc > 5)
+            VNa = atof(argv[5]);
+        if (argc > 6)
+            VK = atof(argv[6]);
+        if (argc > 7)
+            VL = atof(argv[7]);
 
-    if (argc > 7)
-        VK = atof(argv[7]);
-
-    if (argc > 8)
-        VL = atof(argv[8]);
-
-    if (argc > 9)
-        sn = atof(argv[9]);
-
-    if (argc > 10)
-        sm = atof(argv[10]);
-
-    if (argc > 11)
-        sh = atof(argv[11]);
-}
+        if (argc > 8)
+            sn = atof(argv[8]);
+        if (argc > 9)
+            sm = atof(argv[9]);
+        if (argc > 10)
+            sh = atof(argv[10]);
+    }
 
     /*
     if (argc > 8)

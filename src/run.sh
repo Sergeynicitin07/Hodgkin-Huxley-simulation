@@ -12,19 +12,20 @@ if [ "$CALC" -eq 2 ]; then
 
     VNA=${6:--115}
     VK=${7:-12}
-    VL=${8:-10.613}
+    VL=${8:--10.613}
 
     SN=${9:-1}
     SM=${10:-1}
     SH=${11:-1}
 
-    echo "Inverse problem mode"
+    echo "Problem mode"
     echo "method = $METHOD"
     echo "gNa = $GNA | gK = $GK | gL = $GL"
     echo "VNa = $VNA | VK = $VK | VL = $VL"
     echo "sn = $SN | sm = $SM | sh = $SH"
 
     ./hh_sim 2 \
+        "$METHOD" \
         "$GNA" \
         "$GK" \
         "$GL" \

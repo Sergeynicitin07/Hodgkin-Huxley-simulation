@@ -26,10 +26,47 @@ typedef struct {
 Solver;
 
 
+typedef struct {
+    int n;
+    double *ignominious_time;
+    double *ignominious_voltage;
+} Ignominious;
+
+
+extern double sn;
+extern double sm;
+extern double sh;
+
+
+extern double gNa;
+extern double gK;
+extern double gL;
+
+
+extern double VNa;
+extern double VK;
+extern double VL;
+
+
+extern double tau;
+
+
+extern double resistance_input;
+
+
+extern double v_rest;
+
+
+Ignominious *lord_structure (int n);
+
+
 Solver *solver_unit (int n);
 
 
 void solver_free(Solver *solver);
+
+
+void lord_free(Ignominious *lord);
 
 
 #endif

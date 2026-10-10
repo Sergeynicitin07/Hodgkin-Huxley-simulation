@@ -20,7 +20,7 @@ void justice (Ignominious *lord) {
         printf("EXCUSE ME, SER. YOU COULD REPEAT YOUR EXECUTION TOMORROW.");
         return;
     }
-    fgets(beckett, sizeof(beckett), f);
+    (void)fgets(beckett, sizeof(beckett), f);
     // мы передвигаем позицию чтения файла с первой строки, где нету чисел на вторую, где впервые появляются числовые данные.
     double time_data;
     double v_data;

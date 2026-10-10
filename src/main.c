@@ -203,9 +203,9 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-        for (int i = 0; i < lord->n; i++) {
+        for (int i = 3000; i < lord->n; i++) {
             fprintf(experiment, "%15le %15le\n",
-                    lord->ignominious_time[i],
+                    lord->ignominious_time[i] - 3000.0 * 0.02,
                     lord->ignominious_voltage[i]);
         }
 
@@ -216,8 +216,11 @@ int main(int argc, char *argv[]) {
 
         while (t < t_end) {
 
-            printf("%15le %15le %15le %15le %15le\n",
-                   t, -77.5 - x[0], x[1], x[2], x[3]);
+            if (t > 60.0) {
+                printf("%15le %15le %15le %15le %15le\n",
+                   t - 60.0, -53.5 - x[0], x[1], x[2], x[3]);
+            }
+            
             if (strcmp(method, "rk4") == 0) {
                 rk4 (solver, x, h, f, &p, &global);
                 t += h;

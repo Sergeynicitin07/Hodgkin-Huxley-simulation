@@ -114,18 +114,18 @@ double resistance_input = 63.0;
 
 double v_rest = -77.5;
 
-double gNa = 120.0;
-double gK = 36.0;
-double gL = 0.3;
+double gNa = 78.0;
+double gK = 2.85;
+double gL = 2.4;
 
 
-double VNa = -115.0;
-double VK = 12.0;
+double VNa = -118.0;
+double VK = 13.0;
 double VL = -10.613;
 
-double sn = 1.0;
-double sm = 1.0;
-double sh = 1.0;
+double sn = 0.006;
+double sm = 1.2;
+double sh = 0.21;
 
 void lord_free(Ignominious *lord) {
     if (!lord) return;

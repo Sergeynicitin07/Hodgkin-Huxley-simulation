@@ -17,14 +17,10 @@ void justice (Ignominious *lord) {
     FILE *f = fopen("data(13).csv", "r");
     // r - read data
     if (f == NULL) {
-        printf("EXCUSE ME, SER. YOU COULD REPEAT YOUR EXECUTION TOMORROW.");
+        printf("EXCUSE ME, SIR. YOU MIGHT REPEAT YOUR EXECUTION TOMORROW.");
         return;
     }
-    if (fgets(beckett, sizeof(beckett), f) == NULL) {
-        printf("You must keep a grip on your impulses.\n");
-        fclose(f);
-        return;
-    }
+    fgets(beckett, sizeof(beckett), f);
     // мы передвигаем позицию чтения файла с первой строки, где нету чисел на вторую, где впервые появляются числовые данные.
     double time_data;
     double v_data;
@@ -47,6 +43,62 @@ void justice (Ignominious *lord) {
 }
 
 
+
+void the_death_from_above(
+        Ignominious *lord,
+        double h,
+        Params *p,
+        int *global,
+        Solver *solver,
+        double x1[4],
+        double t0,
+        double t_end,
+        int *talon,
+        double *c
+) {
+
+    FILE *file = fopen("parameters.txt", "r");
+    if (file != NULL) {
+        if (fscanf(file, "%15le", c) == 1) {
+            fclose(file);
+            return;
+        }
+        fclose(file);
+    }
+    int step = (int)(0.02 / h);
+    int count = 0;
+    double vatoadmin = 0.0;
+
+    int i = 3000;
+    *c = 0.0;
+
+    while (t0 < t_end) {
+        {
+            if (t0 >= 60.0) {
+                if (count % step == 0) {
+                    *c -= (x1[0] + lord->ignominious_voltage[i]);
+                    i ++;
+                    vatoadmin += 1.0;
+                    (*talon)++;
+                }
+                count ++;
+
+
+            }
+
+
+
+            rk4(solver, x1, h, f, p, global);
+            t0 += h;
+        }
+    }
+    *c /= vatoadmin;
+    file = fopen("parameters.txt", "w");
+    if (file != NULL) {
+        fprintf(file, "%15le\n", *c);
+        fclose(file);
+    }
+}
 
 
 
@@ -76,6 +128,7 @@ int main(int argc, char *argv[]) {
 
 
 
+
     int n = 4;
     clock_t start = clock();
     double time_limit = 2.0;
@@ -101,13 +154,11 @@ int main(int argc, char *argv[]) {
 
     if (argc > 1)
         use_calculus = atoi(argv[1]); // 1 = calculus режим
-
-
-
-
     p.Iext = -I;
     double hk = 1e-1;
     double tol = 1e-1;
+
+    double c = 0.0;
     double as = 1e-10;
     if (use_calculus == 1 || use_calculus == 0) {
         if (argc > 2)
@@ -167,6 +218,8 @@ int main(int argc, char *argv[]) {
     int global = 0;
     double x[4] = {0.0, 0.042, 0.608, 0.6};
 
+    double x1[4] = {0.0, 0.042, 0.608, 0.6};
+
     if (use_calculus == 1) {
         Test_slop *r = malloc(sizeof(Test_slop));
         Neural_data *j = malloc(sizeof(Neural_data));
@@ -209,7 +262,7 @@ int main(int argc, char *argv[]) {
 
         for (int i = 3000; i < lord->n; i++) {
             fprintf(experiment, "%15le %15le\n",
-                    lord->ignominious_time[i] - 3000.0 * 0.02,
+                    lord->ignominious_time[i] - 3000 * 0.02,
                     lord->ignominious_voltage[i]);
         }
 
@@ -218,13 +271,19 @@ int main(int argc, char *argv[]) {
         tol = 1e-14;
         double h_long = h;
 
+        int talon = 0;
+
+        the_death_from_above(
+                lord, h, &p, &global, solver,
+                x1, 0.0, t_end, &talon, &c
+        );
+
+
         while (t < t_end) {
 
-            if (t > 60.0) {
+            if (t >= 60.0)
                 printf("%15le %15le %15le %15le %15le\n",
-                   t - 60.0, -53.5 - x[0], x[1], x[2], x[3]);
-            }
-            
+                   t - 60.0, -c - x[0], x[1], x[2], x[3]);
             if (strcmp(method, "rk4") == 0) {
                 rk4 (solver, x, h, f, &p, &global);
                 t += h;
@@ -244,7 +303,8 @@ int main(int argc, char *argv[]) {
 
     }
 
-    solver_free(solver);
+
+solver_free(solver);
     lord_free(lord);
     return 0;
 }

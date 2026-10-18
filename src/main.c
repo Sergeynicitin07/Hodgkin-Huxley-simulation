@@ -20,7 +20,6 @@ void justice (Ignominious *lord) {
         printf("EXCUSE ME, SIR. YOU MIGHT REPEAT YOUR EXECUTION TOMORROW.");
         return;
     }
-    (void)fgets(beckett, sizeof(beckett), f);
     if (fgets(beckett, sizeof(beckett), f) == NULL) {
         printf("You must keep a grip on your impulses.\n");
         fclose(f);

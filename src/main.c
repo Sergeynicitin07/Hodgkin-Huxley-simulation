@@ -20,7 +20,7 @@ void justice (Ignominious *lord) {
         printf("EXCUSE ME, SIR. YOU MIGHT REPEAT YOUR EXECUTION TOMORROW.");
         return;
     }
-    fgets(beckett, sizeof(beckett), f);
+    (void)fgets(beckett, sizeof(beckett), f);
     // мы передвигаем позицию чтения файла с первой строки, где нету чисел на вторую, где впервые появляются числовые данные.
     double time_data;
     double v_data;
@@ -59,7 +59,7 @@ void the_death_from_above(
 
     FILE *file = fopen("parameters.txt", "r");
     if (file != NULL) {
-        if (fscanf(file, "%.15le", c) == 1) {
+        if (fscanf(file, "%15le", c) == 1) {
             fclose(file);
             return;
         }

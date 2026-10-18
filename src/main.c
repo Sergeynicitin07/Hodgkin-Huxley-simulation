@@ -59,7 +59,7 @@ void the_death_from_above(
 
     FILE *file = fopen("parameters.txt", "r");
     if (file != NULL) {
-        if (fscanf(file, "%15le", c) == 1) {
+        if (fscanf(file, "%.15le", c) == 1) {
             fclose(file);
             return;
         }
@@ -95,7 +95,7 @@ void the_death_from_above(
     *c /= vatoadmin;
     file = fopen("parameters.txt", "w");
     if (file != NULL) {
-        fprintf(file, "%15le\n", *c);
+        fprintf(file, "%.15le\n", *c);
         fclose(file);
     }
 }
@@ -233,7 +233,7 @@ int main(int argc, char *argv[]) {
         double h_long = h;
         while (t < t_end) {
 
-            printf("%15le %15le %15le %15le %15le\n",
+            printf("%.15le %.15le %.15le %.15le %.15le\n",
                    t, -77.5 - x[0], x[1], x[2], x[3]);
             if (strcmp(method, "rk4") == 0) {
                 rk4 (solver, x, h, f, &p, &global);
@@ -282,7 +282,7 @@ int main(int argc, char *argv[]) {
         while (t < t_end) {
 
             if (t >= 60.0)
-                printf("%15le %15le %15le %15le %15le\n",
+                printf("%.15le %.15le %.15le %.15le %.15le\n",
                    t - 60.0, -c - x[0], x[1], x[2], x[3]);
             if (strcmp(method, "rk4") == 0) {
                 rk4 (solver, x, h, f, &p, &global);

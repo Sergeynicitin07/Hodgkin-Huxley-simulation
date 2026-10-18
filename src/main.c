@@ -21,7 +21,11 @@ void justice (Ignominious *lord) {
         return;
     }
     (void)fgets(beckett, sizeof(beckett), f);
-    // мы передвигаем позицию чтения файла с первой строки, где нету чисел на вторую, где впервые появляются числовые данные.
+    if (fgets(beckett, sizeof(beckett), f) == NULL) {
+        printf("You must keep a grip on your impulses.\n");
+        fclose(f);
+        return;
+    }    // мы передвигаем позицию чтения файла с первой строки, где нету чисел на вторую, где впервые появляются числовые данные.
     double time_data;
     double v_data;
     while (i < lord->n && fscanf(f, "%lf, %lf", &time_data, &v_data) == 2) {

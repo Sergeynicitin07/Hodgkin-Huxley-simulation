@@ -103,8 +103,8 @@ void the_death_from_above(
 
     *c = - sum_1 / vatoadmin;
     double sum_r_2_new = sum_2 - (sum_1 * sum_1) / vatoadmin; // сумма квадратов невязок нового параметра c
-    printf("Sum of Squared Errors: %.15le %.15le\n", c_, sum_r_2);
-    printf("Sum of new Squared Errors: %.15le %.15le\n", *c, sum_r_2_new);
+    printf("c_old: %.15le Sum of Squared Errors old: %.15le\n", c_, sum_r_2);
+    printf("c_new: %.15le Sum of Squared Errors new:%.15le\n", *c, sum_r_2_new);
     FILE *file = fopen("parameters.txt", "w");
     if (file != NULL) {
         fprintf(file, "%.15le\n", *c);

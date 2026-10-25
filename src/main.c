@@ -60,27 +60,30 @@ void the_death_from_above(
         double *c
 ) {
 
-    FILE *file = fopen("parameters.txt", "r");
-    if (file != NULL) {
-        if (fscanf(file, "%15le", c) == 1) {
-            fclose(file);
-            return;
-        }
-        fclose(file);
-    }
+
     int step = (int)(0.02 / h);
     int count = 0;
     double vatoadmin = 0.0;
 
     int i = 3000;
-    *c = 0.0;
 
+    double c_ = *c;
+    double sum_1 = 0.0; // ...
+    double sum_2 = 0.0; // сумма квадратов разницы двух напряжений
+    double sum_r_2 = 0.0; // сумма квадратов невязки
+    double r = 0.0;
+    double a;
+    (*talon) = 0;
     while (t0 < t_end) {
         {
             if (t0 >= 60.0) {
                 if (count % step == 0) {
-                    *c -= (x1[0] + lord->ignominious_voltage[i]);
+                    a = (x1[0] + lord->ignominious_voltage[i]);
                     i ++;
+                    sum_1 += a;
+                    sum_2 += a * a;
+                    r = a + c_;
+                    sum_r_2 += r * r; // сумма квадратов невязок вводимого c
                     vatoadmin += 1.0;
                     (*talon)++;
                 }
@@ -95,8 +98,14 @@ void the_death_from_above(
             t0 += h;
         }
     }
-    *c /= vatoadmin;
-    file = fopen("parameters.txt", "w");
+
+    double s;
+
+    *c = - sum_1 / vatoadmin;
+    double sum_r_2_new = sum_2 - (sum_1 * sum_1) / vatoadmin; // сумма квадратов невязок нового параметра c
+    printf("Sum of Squared Errors: %.15le %.15le\n", c_, sum_r_2);
+    printf("Sum of new Squared Errors: %.15le %.15le\n", *c, sum_r_2_new);
+    FILE *file = fopen("parameters.txt", "w");
     if (file != NULL) {
         fprintf(file, "%.15le\n", *c);
         fclose(file);
@@ -161,7 +170,7 @@ int main(int argc, char *argv[]) {
     double hk = 1e-1;
     double tol = 1e-1;
 
-    double c = 0.0;
+    double c = -53.5;
     double as = 1e-10;
     if (use_calculus == 1 || use_calculus == 0) {
         if (argc > 2)
@@ -182,29 +191,31 @@ int main(int argc, char *argv[]) {
     }
     if (use_calculus == 2) {
 
-
         if (argc > 2)
-            gNa = atof(argv[2]);
+            c = atof(argv[2]);
 
         if (argc > 3)
-            gK = atof(argv[3]);
+            gNa = atof(argv[3]);
 
         if (argc > 4)
-            gL = atof(argv[4]);
+            gK = atof(argv[4]);
 
         if (argc > 5)
-            VNa = atof(argv[5]);
-        if (argc > 6)
-            VK = atof(argv[6]);
-        if (argc > 7)
-            VL = atof(argv[7]);
+            gL = atof(argv[5]);
 
+        if (argc > 6)
+            VNa = atof(argv[6]);
+        if (argc > 7)
+            VK = atof(argv[7]);
         if (argc > 8)
-            sn = atof(argv[8]);
+            VL = atof(argv[8]);
+
         if (argc > 9)
-            sm = atof(argv[9]);
+            sn = atof(argv[9]);
         if (argc > 10)
-            sh = atof(argv[10]);
+            sm = atof(argv[10]);
+        if (argc > 11)
+            sh = atof(argv[11]);
     }
 
     /*

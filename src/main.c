@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
     double hk = 1e-1;
     double tol = 1e-1;
 
-    double c = -53.5;
+    double c = 53.5;
     double as = 1e-10;
     if (use_calculus == 1 || use_calculus == 0) {
         if (argc > 2)

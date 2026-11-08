@@ -359,7 +359,6 @@ int main(int argc, char *argv[]) {
         double *r = malloc(data_count * sizeof(double));
         double delta[3];
         double alpha;
-        p.ladder = 1;
 
 
         int talon = 0;
@@ -367,6 +366,8 @@ int main(int argc, char *argv[]) {
                 lord, h, &p, &global, solver,
                 x1, 0.0, t_end, &talon, &c
         );
+        p.ladder = 1;
+
         for (int iteration = 0; iteration < 5; iteration++) {
 
             x1[0] = 0.0;

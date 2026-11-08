@@ -114,6 +114,58 @@ void the_death_from_above(
 
 
 
+int solve_3x3(double A[3][3], double b[3], double delta[3]) {
+
+    double M[3][4];
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++)
+            M[i][j] = A[i][j];
+
+        M[i][3] = b[i];
+    }
+
+    for (int k = 0; k < 3; k++) {
+
+        int p = k;
+
+        for (int i = k + 1; i < 3; i++)
+            if (fabs(M[i][k]) > fabs(M[p][k]))
+                p = i;
+
+
+        if (fabs(M[p][k]) < 1e-10)
+            return 0;
+
+        for (int j = k; j < 4; j++) {
+            double temp = M[k][j];
+            M[k][j] = M[p][j];
+            M[p][j] = temp;
+        }
+
+        for (int i = k + 1; i < 3; i++) {
+            double q = M[i][k] / M[k][k];
+
+            for (int j = k; j < 4; j++)
+                M[i][j] -= q * M[k][j];
+        }
+    }
+
+    for (int i = 2; i >= 0; i--) {
+        delta[i] = M[i][3];
+
+        for (int j = i + 1; j < 3; j++)
+            delta[i] -= M[i][j] * delta[j];
+
+        delta[i] /= M[i][i];
+    }
+
+    return 1;
+}
+
+
+
+
 
 int main(int argc, char *argv[]) {
 
@@ -154,9 +206,15 @@ int main(int argc, char *argv[]) {
     solver->Rtol[1] = 1e-1;
     solver->Rtol[2] = 1e-1;
     solver->Rtol[3] = 1e-15;
+    Solver *solver_sens = solver_unit(16);
 
+    for (int i = 0; i < 16; i++) {
+        solver_sens->Atol[i] = 1e-12;
+        solver_sens->Rtol[i] = 1e-9;
+    }
 
     Params p;
+    p.ladder = 0;
 
     double h = 1e-3;
     double t = 0.0;
@@ -234,6 +292,14 @@ int main(int argc, char *argv[]) {
 
     double x1[4] = {0.0, 0.042, 0.608, 0.6};
 
+    double x2[16] = {0.0, 0.042, 0.608, 0.6,
+                     0.0, 0.0, 0.0, 0.0,
+                     0.0, 0.0, 0.0, 0.0,
+                     0.0, 0.0, 0.0, 0.0
+
+    };
+
+
     if (use_calculus == 1) {
         Test_slop *r = malloc(sizeof(Test_slop));
         Neural_data *j = malloc(sizeof(Neural_data));
@@ -282,10 +348,116 @@ int main(int argc, char *argv[]) {
 
         fclose(experiment);
 
-        tol = 1e-14;
         double h_long = h;
 
+
+        int step = (int)(0.02 / h);
+        int data_count = lord->n - 3000;
+
+        double *good_times = malloc(3 * data_count * sizeof(double));
+        double *r = malloc(data_count * sizeof(double));
+        double delta[3];
+        double alpha;
+        p.ladder = 1;
+
+
         int talon = 0;
+
+        for (int iteration = 0; iteration < 6; iteration++) {
+
+            x1[0] = 0.0;
+            x1[1] = 0.042;
+            x1[2] = 0.608;
+            x1[3] = 0.6;
+
+
+
+            for (int i = 0; i < 16; i++)
+                x2[i] = 0.0;
+
+            x2[0] = 0.0;
+            x2[1] = 0.042;
+            x2[2] = 0.608;
+            x2[3] = 0.6;
+
+            double t2 = 0.0;
+            int count = 0;
+            int index = 0;
+
+            while (t2 < t_end) {
+
+                if (t2 >= 60.0 && count % step == 0) {
+
+                    if (index >= data_count)
+                        break;
+
+                    good_times[index] = x2[4];
+                    good_times[data_count + index] = x2[8];
+                    good_times[2 * data_count + index] = x2[12];
+
+                    r[index] = -c - x2[0]
+                               - lord->ignominious_voltage[index + 3000];
+
+                    index++;
+                }
+
+                if (t2 >= 60.0)
+                    count++;
+
+                rk4(solver_sens, x2, h, f, &p, &global);
+
+                t2 += h;
+            }
+
+
+
+            double A[3][3] = {{0.0}};
+            double b[3] = {0.0, 0.0, 0.0};
+
+            for (int i = 0; i < data_count; i++) {
+
+                double J[3];
+
+                for (int q = 0; q < 3; q++)
+                    J[q] = - good_times[q * data_count + i];
+
+                for (int q = 0; q < 3; q++) {
+
+                    b[q] -= J[q] * r[i];
+
+                    for (int j = 0; j < 3; j++)
+                        A[q][j] += J[q] * J[j];
+                }
+            }
+            double sum_r_2 = 0.0;
+
+            for (int i = 0; i < data_count; i++)
+                sum_r_2 += r[i] * r[i];
+
+            printf("%d: sum_r_2 = %.15le\n", iteration, sum_r_2);
+
+            alpha = 1.0;
+
+            if (!solve_3x3(A, b, delta)) {
+                printf("You shall abandon the lie. Your time in that way was a bad investment on my part.\n");
+                return 1;
+            }
+
+            gNa += alpha * delta[0];
+            gK  += alpha * delta[1];
+            gL  += alpha * delta[2];
+            printf("%d: gNa = %.15le, gK = %.15le, gL = %.15le\n",
+                   iteration, gNa, gK, gL);
+
+        }
+
+
+        x1[0] = 0.0;
+        x1[1] = 0.042;
+        x1[2] = 0.608;
+        x1[3] = 0.6;
+
+        p.ladder = 0;
 
         the_death_from_above(
                 lord, h, &p, &global, solver,
@@ -318,7 +490,8 @@ int main(int argc, char *argv[]) {
     }
 
 
-solver_free(solver);
+    solver_free(solver_sens);
+    solver_free(solver);
     lord_free(lord);
     return 0;
 }

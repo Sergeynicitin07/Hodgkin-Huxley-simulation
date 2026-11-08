@@ -332,6 +332,7 @@ int main(int argc, char *argv[]) {
             }
         }
     } else if (use_calculus == 2){
+
         justice(lord);
         FILE *experiment = fopen("experiment.txt", "w");
 
@@ -362,8 +363,11 @@ int main(int argc, char *argv[]) {
 
 
         int talon = 0;
-
-        for (int iteration = 0; iteration < 6; iteration++) {
+        the_death_from_above(
+                lord, h, &p, &global, solver,
+                x1, 0.0, t_end, &talon, &c
+        );
+        for (int iteration = 0; iteration < 5; iteration++) {
 
             x1[0] = 0.0;
             x1[1] = 0.042;
@@ -436,13 +440,12 @@ int main(int argc, char *argv[]) {
 
             printf("%d: sum_r_2 = %.15le\n", iteration, sum_r_2);
 
-            alpha = 1.0;
+            alpha = 0.5;
 
             if (!solve_3x3(A, b, delta)) {
                 printf("You shall abandon the lie. Your time in that way was a bad investment on my part.\n");
                 return 1;
             }
-
             gNa += alpha * delta[0];
             gK  += alpha * delta[1];
             gL  += alpha * delta[2];

@@ -2,10 +2,13 @@
 #define UNTITLED35_MODEL_H
 
 
+
 typedef struct {
     double Iext;
+    int ladder;
 }
 Params;
+
 
 
 void f(double *x, double *fx, void *context, int *global);

@@ -43,14 +43,15 @@ if [ "$CALC" -eq 2 ]; then
             fflush()
             next
         }
-        /^[[:space:]]*[-+0-9.]/ {
+        /^[[:space:]]*[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?[[:space:]]+[-+]?[0-9]/ {
             print > "rk4.txt"
             next
         }
         {
             print
+            fflush()
         }
-    '
+        '
 
     echo "Data saved -> rk4.txt"
     echo "Experimental data -> experiment.txt"

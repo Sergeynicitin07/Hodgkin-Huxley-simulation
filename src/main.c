@@ -296,52 +296,6 @@ int main(int argc, char *argv[]) {
             sh = atof(argv[11]);
 
 
-
-
-
-
-
-        char active_c[10] = "";
-        char active_gNa[10] = "";
-        char active_gK[10] = "";
-        char active_gL[10] = "";
-        char active_VNa[10] = "";
-        char active_VK[10] = "";
-        char active_VL[10] = "";
-        char active_sn[10] = "";
-        char active_sm[10] = "";
-        char active_sh[10] = "";
-
-        if (argc > 12)
-            strcpy(active_c, argv[12]);
-
-        if (argc > 13)
-            strcpy(active_gNa, argv[13]);
-
-        if (argc > 14)
-            strcpy(active_gK, argv[14]);
-
-        if (argc > 15)
-            strcpy(active_gL, argv[15]);
-
-        if (argc > 16)
-            strcpy(active_VNa, argv[16]);
-
-        if (argc > 17)
-            strcpy(active_VK, argv[17]);
-
-        if (argc > 18)
-            strcpy(active_VL, argv[18]);
-
-        if (argc > 19)
-            strcpy(active_sn, argv[19]);
-
-        if (argc > 20)
-            strcpy(active_sm, argv[20]);
-
-        if (argc > 21)
-            strcpy(active_sh, argv[21]);
-
         p.not_today_count = 0;
 
         for (int arg = 12; arg < argc; arg++) {

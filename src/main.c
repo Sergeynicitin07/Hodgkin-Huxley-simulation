@@ -550,78 +550,59 @@ int main(int argc, char *argv[]) {
             }
             for (int i = 0; i < p.not_today_count; i++) {
 
-                if (p.not_today[i] == 0) {
-                    c += alpha * delta[i];
-                    printf("%d: c = %.15le\n",
-                           iteration, c);
+                switch (p.not_today[i]) {
 
-                }
+                    case 0:
+                        c += alpha * delta[i];
+                        printf("%d: c = %.15le\n", iteration, c);
+                        break;
 
-                if (p.not_today[i] == 1){
-                    gNa += alpha * delta[i];
-                    printf("%d: gNa = %.15le\n",
-                           iteration, gNa);
+                    case 1:
+                        gNa += alpha * delta[i];
+                        printf("%d: gNa = %.15le\n", iteration, gNa);
+                        break;
 
-                }
+                    case 2:
+                        gK += alpha * delta[i];
+                        printf("%d: gK = %.15le\n", iteration, gK);
+                        break;
 
-                if (p.not_today[i] == 2){
-                    gK += alpha * delta[i];
-                    printf("%d: gK = %.15le\n",
-                           iteration, gK);
+                    case 3:
+                        gL += alpha * delta[i];
+                        printf("%d: gL = %.15le\n", iteration, gL);
+                        break;
 
-                }
+                    case 4:
+                        VNa += alpha * delta[i];
+                        printf("%d: VNa = %.15le\n", iteration, VNa);
+                        break;
 
-                if (p.not_today[i] == 3){
-                    gL += alpha * delta[i];
-                    printf("%d: gL = %.15le\n",
-                           iteration, gL);
+                    case 5:
+                        VK += alpha * delta[i];
+                        printf("%d: VK = %.15le\n", iteration, VK);
+                        break;
 
-                }
+                    case 6:
+                        VL += alpha * delta[i];
+                        printf("%d: VL = %.15le\n", iteration, VL);
+                        break;
 
-                if (p.not_today[i] == 4){
-                    VNa += alpha * delta[i];
-                    printf("%d:VNa = %.15le\n",
-                           iteration, VNa);
+                    case 7:
+                        sn += alpha * delta[i];
+                        printf("%d: sn = %.15le\n", iteration, sn);
+                        break;
 
-                }
+                    case 8:
+                        sm += alpha * delta[i];
+                        printf("%d: sm = %.15le\n", iteration, sm);
+                        break;
 
-                if (p.not_today[i] == 5){
-                    VK += alpha * delta[i];
-                    printf("%d: VK = %.15le\n",
-                           iteration, VK);
-
-                }
-
-                if (p.not_today[i] == 6){
-                    VL += alpha * delta[i];
-                    printf("%d: VL = %.15le\n",
-                           iteration, VL);
-
-                }
-
-                if (p.not_today[i] == 7){
-                    sn += alpha * delta[i];
-                    printf("%d: sn = %.15le\n",
-                           iteration, sn);
-
-
-                }
-
-                if (p.not_today[i] == 8){
-                    sm += alpha * delta[i];
-                    printf("%d: sm = %.15le\n",
-                           iteration, sm);
-
-                }
-
-                if (p.not_today[i] == 9){
-                    sh += alpha * delta[i];
-                    printf("%d: sh = %.15le\n",
-                           iteration, sh);
-
+                    case 9:
+                        sh += alpha * delta[i];
+                        printf("%d: sh = %.15le\n", iteration, sh);
+                        break;
                 }
             }
-
 
 
         }

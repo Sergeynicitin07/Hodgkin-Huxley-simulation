@@ -343,66 +343,52 @@ int main(int argc, char *argv[]) {
             strcpy(active_sh, argv[21]);
 
         p.not_today_count = 0;
+        count_N_T = 0;
 
-        if (strcmp(active_c, "c") == 0){
-            p.not_today[p.not_today_count++] = 0;
+        for (int arg = 12; arg < argc; arg++) {
+
+            if (strcmp(argv[arg], "c") == 0) {
+                p.not_today[p.not_today_count++] = 0;
+            }
+            else if (strcmp(argv[arg], "gNa") == 0) {
+                p.not_today[p.not_today_count++] = 1;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "gK") == 0) {
+                p.not_today[p.not_today_count++] = 2;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "gL") == 0) {
+                p.not_today[p.not_today_count++] = 3;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "VNa") == 0) {
+                p.not_today[p.not_today_count++] = 4;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "VK") == 0) {
+                p.not_today[p.not_today_count++] = 5;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "VL") == 0) {
+                p.not_today[p.not_today_count++] = 6;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "sn") == 0) {
+                p.not_today[p.not_today_count++] = 7;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "sm") == 0) {
+                p.not_today[p.not_today_count++] = 8;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "sh") == 0) {
+                p.not_today[p.not_today_count++] = 9;
+                count_N_T++;
+            }
         }
 
-        if (strcmp(active_gNa, "gNa") == 0) {
-            p.not_today[p.not_today_count++] = 1;
-            count_N_T += 1;
-
-        }
-
-        if (strcmp(active_gK, "gK") == 0){
-            p.not_today[p.not_today_count++] = 2;
-            count_N_T += 1;
-
-        }
-
-        if (strcmp(active_gL, "gL") == 0){
-            p.not_today[p.not_today_count++] = 3;
-            count_N_T += 1;
-
-        }
-
-        if (strcmp(active_VNa, "VNa") == 0){
-            p.not_today[p.not_today_count++] = 4;
-            count_N_T += 1;
-
-        }
-
-        if (strcmp(active_VK, "VK") == 0){
-            p.not_today[p.not_today_count++] = 5;
-            count_N_T += 1;
-
-        }
-
-        if (strcmp(active_VL, "VL") == 0){
-            p.not_today[p.not_today_count++] = 6;
-            count_N_T += 1;
-
-        }
-
-        if (strcmp(active_sn, "sn") == 0){
-            p.not_today[p.not_today_count++] = 7;
-            count_N_T += 1;
-
-        }
-
-        if (strcmp(active_sm, "sm") == 0){
-            p.not_today[p.not_today_count++] = 8;
-            count_N_T += 1;
-
-        }
-
-        if (strcmp(active_sh, "sh") == 0){
-            p.not_today[p.not_today_count++] = 9;
-            count_N_T += 1;
-
-        }
         if (p.not_today_count == 0) {
-
             p.not_today_count = 10;
             count_N_T = 9;
 

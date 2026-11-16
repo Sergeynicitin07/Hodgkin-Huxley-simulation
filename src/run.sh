@@ -37,7 +37,8 @@ if [ "$CALC" -eq 2 ]; then
         "$VL" \
         "$SN" \
         "$SM" \
-        "$SH" | awk '
+        "$SH" \
+        "${@:12}" | awk '
         /^Sum of Squared Errors:/ || /^Sum of new Squared Errors:/ {
             print
             fflush()

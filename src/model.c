@@ -2,7 +2,6 @@
 #include "model.h"
 #include "struct.h"
 
-
 void f(double *x, double *fx, void *context, int *global){
     (*global) ++;
     Params *p = (Params *)context;
@@ -56,27 +55,30 @@ void f(double *x, double *fx, void *context, int *global){
 
     if (p->ladder == 1) {
 
-
-
         double alpha_n_v = sn * 0.01 *
-                           ((exp((V + 10.0) / 10.0) - 1.0) - (V + 10.0) * exp((V + 10.0) / 10.0) / 10.0)
-                           / ((exp((V + 10.0) / 10.0) - 1.0) * (exp((V + 10.0) / 10.0) - 1.0));
+                           ((exp((V + 10.0) / 10.0) - 1.0)
+                            - (V + 10.0) * exp((V + 10.0) / 10.0) / 10.0)
+                           / ((exp((V + 10.0) / 10.0) - 1.0)
+                              * (exp((V + 10.0) / 10.0) - 1.0));
 
         double beta_n_v = beta_n / 80.0;
 
         double alpha_m_v = sm * 0.1 *
-                           ((exp((V + 25.0) / 10.0) - 1.0) - (V + 25.0) * exp((V + 25.0) / 10.0) / 10.0)
-                           / ((exp((V + 25.0) / 10.0) - 1.0) * (exp((V + 25.0) / 10.0) - 1.0));
+                           ((exp((V + 25.0) / 10.0) - 1.0)
+                            - (V + 25.0) * exp((V + 25.0) / 10.0) / 10.0)
+                           / ((exp((V + 25.0) / 10.0) - 1.0)
+                              * (exp((V + 25.0) / 10.0) - 1.0));
 
         double beta_m_v = beta_m / 18.0;
 
         double alpha_h_v = alpha_h / 20.0;
 
         double beta_h_v = -sh * exp((V + 30.0) / 10.0) /
-                          (10.0 * (exp((V + 30.0) / 10.0) + 1.0) * (exp((V + 30.0) / 10.0) + 1.0));
+                          (10.0 * (exp((V + 30.0) / 10.0) + 1.0)
+                           * (exp((V + 30.0) / 10.0) + 1.0));
 
 
-        // Производные
+
         double df_dx[4][4] = {{0.0}};
 
         df_dx[0][0] =
@@ -103,30 +105,83 @@ void f(double *x, double *fx, void *context, int *global){
         df_dx[3][3] = -alpha_n - beta_n;
 
 
-        // Производные правой части по gNa, gK, gL
-        double df_dg[4][3] = {{0.0}};
 
-        df_dg[0][0] = -m * m * m * h * (V - VNa) / Cm;
-        df_dg[0][1] = -n * n * n * n * (V - VK) / Cm;
-        df_dg[0][2] = -(V - VL) / Cm;
+        double df_dp[4][10] = {{0.0}};
 
 
-        for (int all = 0; all < 3; all++) {
 
-            for (int i = 0; i < 4; i++) {
 
-                double appeal = df_dg[i][all];
 
-                for (int j = 0; j < 4; j++) {
-                    appeal += df_dx[i][j] *
-                             x[4 + all * 4 + j];
-                }
+        // gNa
+        df_dp[0][1] =
+                -pow(m, 3) * h * (V - VNa) / Cm;
 
-                fx[4 + all * 4 + i] = appeal;
+        // gK
+        df_dp[0][2] =
+                -pow(n, 4) * (V - VK) / Cm;
+
+        // gL
+        df_dp[0][3] =
+                -(V - VL) / Cm;
+
+
+        // VNa
+        df_dp[0][4] =
+                gNa * pow(m, 3) * h / Cm;
+
+        // VK
+        df_dp[0][5] =
+                gK * pow(n, 4) / Cm;
+
+        // VL
+        df_dp[0][6] =
+                gL / Cm;
+
+
+        // sn
+        df_dp[3][7] =
+                0.01 * (V + 10.0)
+                / (exp((V + 10.0) / 10.0) - 1.0) * (1.0 - n)
+                - 0.125 * exp(V / 80.0) * n;
+
+
+        // sm
+        df_dp[1][8] =
+                0.1 * (V + 25.0)
+                / (exp((V + 25.0) / 10.0) - 1.0) * (1.0 - m)
+                - 4.0 * exp(V / 18.0) * m;
+
+        // sh
+        df_dp[2][9] =
+                0.07 * exp(V / 20.0) * (1.0 - h)
+                - 1.0 / (exp((V + 30.0) / 10.0) + 1.0) * h;
+
+
+        int q = 0;
+
+        for (int i = 0; i < p->not_today_count; i++) {
+
+            // c - тут не место
+            if (p->not_today[i] == 0)
+                continue;
+
+            int p1 = p->not_today[i];
+
+            for (int j = 0; j < 4; j++) {
+
+                double appeal = df_dp[j][p1];
+
+                for (int k = 0; k < 4; k++)
+                    appeal += df_dx[j][k] * x[4 + q * 4 + k];
+
+                fx[4 + q * 4 + j] = appeal;
             }
+
+
+
+            q++;
         }
     }
-
 }
 
 

@@ -343,7 +343,6 @@ int main(int argc, char *argv[]) {
             strcpy(active_sh, argv[21]);
 
         p.not_today_count = 0;
-        count_N_T = 0;
 
         for (int arg = 12; arg < argc; arg++) {
 

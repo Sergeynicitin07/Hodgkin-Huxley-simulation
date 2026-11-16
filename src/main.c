@@ -29,7 +29,7 @@ void justice (Ignominious *lord) {
     double v_data;
     while (i < lord->n && fscanf(f, "%lf, %lf", &time_data, &v_data) == 2) {
         if (time_data >= 51000.0 &&
-                time_data <= 100999.0) {
+            time_data <= 100999.0) {
 
             lord->ignominious_time[i] =
                     (time_data - 51000.0) * 0.02;
@@ -114,56 +114,75 @@ void the_death_from_above(
 
 
 
-int solve_3x3(double A[3][3], double b[3], double delta[3]) {
+int solve_10x10(double A[10][10], double b[10], double delta[10]) {
 
-    double M[3][4];
-
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++)
-            M[i][j] = A[i][j];
-
-        M[i][3] = b[i];
-    }
-
-    for (int k = 0; k < 3; k++) {
-
-        int p = k;
-
-        for (int i = k + 1; i < 3; i++)
-            if (fabs(M[i][k]) > fabs(M[p][k]))
-                p = i;
+    double L[10][10] = {{0.0}};
+    double y[10] = {0.0};
 
 
-        if (fabs(M[p][k]) < 1e-10)
-            return 0;
 
-        for (int j = k; j < 4; j++) {
-            double temp = M[k][j];
-            M[k][j] = M[p][j];
-            M[p][j] = temp;
-        }
 
-        for (int i = k + 1; i < 3; i++) {
-            double q = M[i][k] / M[k][k];
 
-            for (int j = k; j < 4; j++)
-                M[i][j] -= q * M[k][j];
+
+    for (int i = 0; i < 10; i++) {
+
+        for (int j = 0; j <= i; j++) {
+
+            double sum = A[i][j];
+
+            for (int k = 0; k < j; k++) {
+                sum -= L[i][k] * L[j][k];
+            }
+
+            if (i == j) {
+
+
+                L[i][j] = sqrt(sum);
+
+            } else {
+
+
+                L[i][j] = sum / L[j][j];
+            }
         }
     }
 
-    for (int i = 2; i >= 0; i--) {
-        delta[i] = M[i][3];
 
-        for (int j = i + 1; j < 3; j++)
-            delta[i] -= M[i][j] * delta[j];
+    for (int i = 0; i < 10; i++) {
 
-        delta[i] /= M[i][i];
+        double sum = b[i];
+
+        for (int j = 0; j < i; j++) {
+            sum -= L[i][j] * y[j];
+        }
+
+
+        y[i] = sum / L[i][i];
+    }
+
+
+    for (int i = 9; i >= 0; i--) {
+
+
+
+
+
+        double sum = y[i];
+
+
+        for (int j = i + 1; j < 10; j++) {
+            sum -= L[j][i] * delta[j];
+        }
+
+
+
+
+
+        delta[i] = sum / L[i][i];
     }
 
     return 1;
 }
-
-
 
 
 
@@ -206,12 +225,7 @@ int main(int argc, char *argv[]) {
     solver->Rtol[1] = 1e-1;
     solver->Rtol[2] = 1e-1;
     solver->Rtol[3] = 1e-15;
-    Solver *solver_sens = solver_unit(16);
 
-    for (int i = 0; i < 16; i++) {
-        solver_sens->Atol[i] = 1e-12;
-        solver_sens->Rtol[i] = 1e-9;
-    }
 
     Params p;
     p.ladder = 0;
@@ -227,7 +241,7 @@ int main(int argc, char *argv[]) {
     p.Iext = -I;
     double hk = 1e-1;
     double tol = 1e-1;
-
+    int dim  = 4;
     double c = 53.5;
     double as = 1e-10;
     if (use_calculus == 1 || use_calculus == 0) {
@@ -246,6 +260,12 @@ int main(int argc, char *argv[]) {
             tol = atof(argv[6]);
         if (argc > 7)
             as = atof(argv[7]);
+    }
+    int count_N_T = 0;
+    p.not_today[0] = 0;
+    for (int i = 0; i < 10; i++) {
+
+        (p.not_today[i] = i);
     }
     if (use_calculus == 2) {
 
@@ -274,7 +294,133 @@ int main(int argc, char *argv[]) {
             sm = atof(argv[10]);
         if (argc > 11)
             sh = atof(argv[11]);
+
+
+
+
+
+
+
+        char active_c[10] = "";
+        char active_gNa[10] = "";
+        char active_gK[10] = "";
+        char active_gL[10] = "";
+        char active_VNa[10] = "";
+        char active_VK[10] = "";
+        char active_VL[10] = "";
+        char active_sn[10] = "";
+        char active_sm[10] = "";
+        char active_sh[10] = "";
+
+        if (argc > 12)
+            strcpy(active_c, argv[12]);
+
+        if (argc > 13)
+            strcpy(active_gNa, argv[13]);
+
+        if (argc > 14)
+            strcpy(active_gK, argv[14]);
+
+        if (argc > 15)
+            strcpy(active_gL, argv[15]);
+
+        if (argc > 16)
+            strcpy(active_VNa, argv[16]);
+
+        if (argc > 17)
+            strcpy(active_VK, argv[17]);
+
+        if (argc > 18)
+            strcpy(active_VL, argv[18]);
+
+        if (argc > 19)
+            strcpy(active_sn, argv[19]);
+
+        if (argc > 20)
+            strcpy(active_sm, argv[20]);
+
+        if (argc > 21)
+            strcpy(active_sh, argv[21]);
+
+        p.not_today_count = 0;
+
+        if (strcmp(active_c, "c") == 0){
+            p.not_today[p.not_today_count++] = 0;
+        }
+
+        if (strcmp(active_gNa, "gNa") == 0) {
+            p.not_today[p.not_today_count++] = 1;
+            count_N_T += 1;
+
+        }
+
+        if (strcmp(active_gK, "gK") == 0){
+            p.not_today[p.not_today_count++] = 2;
+            count_N_T += 1;
+
+        }
+
+        if (strcmp(active_gL, "gL") == 0){
+            p.not_today[p.not_today_count++] = 3;
+            count_N_T += 1;
+
+        }
+
+        if (strcmp(active_VNa, "VNa") == 0){
+            p.not_today[p.not_today_count++] = 4;
+            count_N_T += 1;
+
+        }
+
+        if (strcmp(active_VK, "VK") == 0){
+            p.not_today[p.not_today_count++] = 5;
+            count_N_T += 1;
+
+        }
+
+        if (strcmp(active_VL, "VL") == 0){
+            p.not_today[p.not_today_count++] = 6;
+            count_N_T += 1;
+
+        }
+
+        if (strcmp(active_sn, "sn") == 0){
+            p.not_today[p.not_today_count++] = 7;
+            count_N_T += 1;
+
+        }
+
+        if (strcmp(active_sm, "sm") == 0){
+            p.not_today[p.not_today_count++] = 8;
+            count_N_T += 1;
+
+        }
+
+        if (strcmp(active_sh, "sh") == 0){
+            p.not_today[p.not_today_count++] = 9;
+            count_N_T += 1;
+
+        }
+        if (p.not_today_count == 0) {
+
+            p.not_today_count = 10;
+            count_N_T = 9;
+
+            for (int i = 0; i < 10; i++)
+                p.not_today[i] = i;
+        }
+
+        dim = 4 + count_N_T * 4;
     }
+
+    Solver *solver_sens = solver_unit(dim);
+
+    for (int i = 0; i < dim; i++) {
+        solver_sens->Atol[i] = 1e-12;
+        solver_sens->Rtol[i] = 1e-9;
+    }
+
+
 
     /*
     if (argc > 8)
@@ -292,12 +438,9 @@ int main(int argc, char *argv[]) {
 
     double x1[4] = {0.0, 0.042, 0.608, 0.6};
 
-    double x2[16] = {0.0, 0.042, 0.608, 0.6,
-                     0.0, 0.0, 0.0, 0.0,
-                     0.0, 0.0, 0.0, 0.0,
-                     0.0, 0.0, 0.0, 0.0
+    double x2[44] = {0.0};
 
-    };
+
 
 
     if (use_calculus == 1) {
@@ -350,25 +493,21 @@ int main(int argc, char *argv[]) {
         fclose(experiment);
 
         double h_long = h;
-
+        int diam = (dim - 4) / 4;
 
         int step = (int)(0.02 / h);
         int data_count = lord->n - 3000;
 
-        double *good_times = malloc(3 * data_count * sizeof(double));
+        double *good_times = malloc(diam * data_count * sizeof(double));
         double *r = malloc(data_count * sizeof(double));
-        double delta[3];
+        double delta[10];
         double alpha;
 
 
         int talon = 0;
-        the_death_from_above(
-                lord, h, &p, &global, solver,
-                x1, 0.0, t_end, &talon, &c
-        );
         p.ladder = 1;
 
-        for (int iteration = 0; iteration < 5; iteration++) {
+        for (int iteration = 0; iteration < 10; iteration++) {
 
             x1[0] = 0.0;
             x1[1] = 0.042;
@@ -377,7 +516,7 @@ int main(int argc, char *argv[]) {
 
 
 
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < 44; i++)
                 x2[i] = 0.0;
 
             x2[0] = 0.0;
@@ -396,10 +535,19 @@ int main(int argc, char *argv[]) {
                     if (index >= data_count)
                         break;
 
-                    good_times[index] = x2[4];
-                    good_times[data_count + index] = x2[8];
-                    good_times[2 * data_count + index] = x2[12];
+                    int q = 0;
 
+                    for (int a = 0; a < p.not_today_count; a++) {
+
+                        if (p.not_today[a] == 0)
+                            continue;
+
+
+
+                        good_times[q * data_count + index] = x2[4 + q * 4];
+
+                        q++;
+                    }
                     r[index] = -c - x2[0]
                                - lord->ignominious_voltage[index + 3000];
 
@@ -415,25 +563,39 @@ int main(int argc, char *argv[]) {
             }
 
 
+            int k = p.not_today_count;
 
-            double A[3][3] = {{0.0}};
-            double b[3] = {0.0, 0.0, 0.0};
+            double A[10][10] = {{0.0}};
+            double b[10] = {0.0};
+            double J[10];
 
             for (int i = 0; i < data_count; i++) {
 
-                double J[3];
+                int q = 0;
 
-                for (int q = 0; q < 3; q++)
-                    J[q] = - good_times[q * data_count + i];
+                for (int a = 0; a < k; a++) {
 
-                for (int q = 0; q < 3; q++) {
+                    if (p.not_today[a] == 0) {
+                        J[a] = -1.0;
+                    }
+                    else {
+                        J[a] = -good_times[q * data_count + i];
+                        q++;
+                    }
+                }
 
-                    b[q] -= J[q] * r[i];
+                for (int g = 0; g < k; g++) {
 
-                    for (int j = 0; j < 3; j++)
-                        A[q][j] += J[q] * J[j];
+                    b[g] -= J[g] * r[i];
+
+                    for (int j = 0; j < k; j++)
+                        A[g][j] += J[g] * J[j];
                 }
             }
+
+
+            for (int q = k; q < 10; q++)
+                A[q][q] = 1.0;
             double sum_r_2 = 0.0;
 
             for (int i = 0; i < data_count; i++)
@@ -441,17 +603,48 @@ int main(int argc, char *argv[]) {
 
             printf("%d: sum_r_2 = %.15le\n", iteration, sum_r_2);
 
-            alpha = 0.5;
+            alpha = 0.01;
 
-            if (!solve_3x3(A, b, delta)) {
+            if (!solve_10x10(A, b, delta)) {
                 printf("You shall abandon the lie. Your time in that way was a bad investment on my part.\n");
                 return 1;
             }
-            gNa += alpha * delta[0];
-            gK  += alpha * delta[1];
-            gL  += alpha * delta[2];
-            printf("%d: gNa = %.15le, gK = %.15le, gL = %.15le\n",
-                   iteration, gNa, gK, gL);
+            for (int i = 0; i < p.not_today_count; i++) {
+
+                if (p.not_today[i] == 0)
+                    c += alpha * delta[i];
+
+                if (p.not_today[i] == 1)
+                    gNa += alpha * delta[i];
+
+                if (p.not_today[i] == 2)
+                    gK += alpha * delta[i];
+
+                if (p.not_today[i] == 3)
+                    gL += alpha * delta[i];
+
+                if (p.not_today[i] == 4)
+                    VNa += alpha * delta[i];
+
+                if (p.not_today[i] == 5)
+                    VK += alpha * delta[i];
+
+                if (p.not_today[i] == 6)
+                    VL += alpha * delta[i];
+
+                if (p.not_today[i] == 7)
+                    sn += alpha * delta[i];
+
+                if (p.not_today[i] == 8)
+                    sm += alpha * delta[i];
+
+                if (p.not_today[i] == 9)
+                    sh += alpha * delta[i];
+            }
+
+
+            printf("%d: gNa = %.15le, gK = %.15le, gL = %.15le VNa = %.15le, VK = %.15le, VL = %.15le, sn = %.15le, sm = %.15le, sh = %.15le, c = %.15le\n",
+                   iteration, gNa, gK, gL, VNa, VK, VL, sn, sm, sh, c);
 
         }
 
@@ -463,17 +656,11 @@ int main(int argc, char *argv[]) {
 
         p.ladder = 0;
 
-        the_death_from_above(
-                lord, h, &p, &global, solver,
-                x1, 0.0, t_end, &talon, &c
-        );
-
-
         while (t < t_end) {
 
             if (t >= 60.0)
                 printf("%.15le %.15le %.15le %.15le %.15le\n",
-                   t - 60.0, -c - x[0], x[1], x[2], x[3]);
+                       t - 60.0, -c - x[0], x[1], x[2], x[3]);
             if (strcmp(method, "rk4") == 0) {
                 rk4 (solver, x, h, f, &p, &global);
                 t += h;

@@ -30,6 +30,7 @@ typedef struct {
     int n;
     double *ignominious_time;
     double *ignominious_voltage;
+    double *ignominious_current;
 } Ignominious;
 
 

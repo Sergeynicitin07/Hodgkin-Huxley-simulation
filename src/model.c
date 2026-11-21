@@ -2,6 +2,7 @@
 #include "model.h"
 #include "struct.h"
 
+
 void f(double *x, double *fx, void *context, int *global){
     (*global) ++;
     Params *p = (Params *)context;
@@ -22,7 +23,7 @@ void f(double *x, double *fx, void *context, int *global){
     // Параметр активация калиевых каналов
     double n = x[3];
     // Ёмкость мембраны на единицу площади
-    double Cm = 0.5;
+    double Cm = 1.0;
     // Максимальная способность мембраны пропускать ионы
     // Равновесные потенциалы: V = En - Er
     // En - "настоящий" потенциал натрия
@@ -183,7 +184,6 @@ void f(double *x, double *fx, void *context, int *global){
         }
     }
 }
-
 
 
 

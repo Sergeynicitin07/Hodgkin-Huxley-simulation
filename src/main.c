@@ -707,6 +707,7 @@ int main(int argc, char *argv[]) {
         x[3] = 0.6;
         p.ladder = 0;
 
+        t = -1.0;
         c   = 5.050330502654351e+01;
 
         p.ladder = 0;

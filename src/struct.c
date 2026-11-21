@@ -57,7 +57,7 @@ Solver *solver_unit (int n){
     if (!solver->xarr) return NULL;
 
     solver->xideal = (double *)malloc(sizeof(double) * n);
-    if (!solver->xarr) return NULL;
+    if (!solver->xideal) return NULL;
 
     solver->Y_5 = (double *)malloc(sizeof(double) * n);
     if (!solver->Y_5) return NULL;
@@ -96,7 +96,11 @@ Ignominious *lord_structure (int n) {
     Ignominious *lord = (Ignominious *)malloc(sizeof(Ignominious));
     if (!lord) return NULL;
 
+
     lord->n = n;
+
+    lord->ignominious_current = (double *)malloc(sizeof(double) * n);
+    if (!lord->ignominious_current) return NULL;
     lord->ignominious_time = (double *)malloc(sizeof(double) * n);
     if (!lord->ignominious_time) return NULL;
 
@@ -107,31 +111,72 @@ Ignominious *lord_structure (int n) {
 }
 
 
-double tau = 19.7;
-
-// сопротивление 63 мегаома
-double resistance_input = 63.0;
-
-double v_rest = -77.5;
-
-double gNa = 78.0;
-double gK = 2.85;
-double gL = 2.4;
 
 
-double VNa = -118.0;
-double VK = 13.0;
-double VL = -10.613;
+/*
+double gNa = 155.2553676323;
+double gK  = 54.6590169572;
+double gL  = 0.3736733955;
 
-double sn = 0.006;
-double sm = 1.2;
-double sh = 0.21;
+double VNa = -108.1395566600;
+double VK  = 1.6149168422;
+double VL  = -12.4414069498;
+
+double sn  = 1.6241988865;
+double sm  = 2.5211965215;
+double sh  = 1.7019432075;
+*/
+
+
+
+
+
+
+
+
+
+/*
+double gNa = 7.557339023246625e+01;
+double gK  = 3.390079288566587e+01;
+double gL  = 1.762344149365385e-01;
+
+double VNa = -1.254597334707633e+02;
+double VK  = 2.794740462391533e+00;
+double VL  = -2.247857433533663e+01;
+
+double sn = 1.676449088702419e+00;
+double sm = 2.393620401345924e+00;
+double sh = 1.570285971029515e+00;
+*/
+
+
+
+
+double gNa = 7.557339023246625e+01;
+double gK  = 3.391353682239303e+01;
+double gL  = 1.763638645751135e-01;
+
+double VNa = -1.254570628913517e+02;
+double VK  = 2.794396210688431e+00;
+double VL  = -2.247434770867406e+01;
+
+double sn = 1.676417199246550e+00;
+double sm = 2.392943686051596e+00;
+double sh = 1.570427631097533e+00;
+
+
+
+
+
+
+
 
 void lord_free(Ignominious *lord) {
     if (!lord) return;
 
     free(lord->ignominious_voltage);
     free(lord->ignominious_time);
+
     free(lord);
 
 }

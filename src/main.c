@@ -9,12 +9,14 @@
 #include <time.h>
 
 
+
 void justice (Ignominious *lord) {
     // 27.09.2026 - the new project
     char beckett[256];
-
     int i = 0;
-    FILE *f = fopen("data(13).csv", "r");
+    double current_data;
+    int index = 0;
+    FILE *f = fopen("a1t18.csv", "r");
     // r - read data
     if (f == NULL) {
         printf("EXCUSE ME, SIR. YOU MIGHT REPEAT YOUR EXECUTION TOMORROW.");
@@ -24,22 +26,29 @@ void justice (Ignominious *lord) {
         printf("You must keep a grip on your impulses.\n");
         fclose(f);
         return;
-    }    // мы передвигаем позицию чтения файла с первой строки, где нету чисел на вторую, где впервые появляются числовые данные.
-    double time_data;
+    }
+    // мы передвигаем позицию чтения файла с первой строки, где нету чисел на вторую, где впервые появляются числовые данные.
     double v_data;
-    while (i < lord->n && fscanf(f, "%lf, %lf", &time_data, &v_data) == 2) {
-        if (time_data >= 51000.0 &&
-            time_data <= 100999.0) {
+    while (i < lord->n && fscanf(f, "%lf, %lf", &v_data, &current_data) == 2) {
+
+        if (index >= 175000 && index <= 235000)
+                {
+
 
             lord->ignominious_time[i] =
-                    (time_data - 51000.0) * 0.02;
+            (index - 125000) * 0.008;
 
             lord->ignominious_voltage[i] =
-                    v_data * 1000.0;
+                    v_data * 100.0;
+
+            lord->ignominious_current[i] =
+                    current_data * 5.0;
 
             i++;
         }
+        index++;
     }
+    lord->n = i;
     fclose(f);
 
 
@@ -116,6 +125,7 @@ void the_death_from_above(
 
 int solve_10x10(double A[10][10], double b[10], double delta[10]) {
 
+
     double L[10][10] = {{0.0}};
     double y[10] = {0.0};
 
@@ -189,24 +199,11 @@ int solve_10x10(double A[10][10], double b[10], double delta[10]) {
 int main(int argc, char *argv[]) {
 
 
-    double current = 430.000007822784;
-    // пикоампер
-    // 1pA = 10e−12A
-    int independence = 50000;
-
+    // int independence = 125001;
+    int independence = 250001;
     Ignominious *lord = lord_structure(independence);
 
 
-    // resistance_input = 63.0 миллиона ом
-    // tau - мембранная постоянная времени (ms)
-    double capacity_cell_nF = tau / resistance_input;
-    // перевод из нано в микро
-    double capacity_cell_uF = capacity_cell_nF * 1e-3;
-
-    double Cm = 0.5;
-    double s = capacity_cell_uF / Cm;
-    // перевод в микроамперы
-    double I = current * 1e-6 / s;
 
 
 
@@ -227,6 +224,7 @@ int main(int argc, char *argv[]) {
     solver->Rtol[3] = 1e-15;
 
 
+    int gift = 0;
     Params p;
     p.ladder = 0;
 
@@ -235,14 +233,15 @@ int main(int argc, char *argv[]) {
     double t_end = 1000.0;
     char method[20] = "rk4";
     int use_calculus = 2;
+    p.Iext = 0.003666281829 * 5;
 
     if (argc > 1)
         use_calculus = atoi(argv[1]); // 1 = calculus режим
-    p.Iext = -I;
     double hk = 1e-1;
     double tol = 1e-1;
     int dim  = 4;
-    double c = 53.5;
+    double c  = 5.050330493860655e+01;
+
     double as = 1e-10;
     if (use_calculus == 1 || use_calculus == 0) {
         if (argc > 2)
@@ -269,6 +268,64 @@ int main(int argc, char *argv[]) {
     }
     if (use_calculus == 2) {
 
+        p.not_today_count = 0;
+
+
+        for (int arg = 2; arg < argc; arg++) {
+
+            if (strcmp(argv[arg], "c") == 0) {
+                p.not_today[p.not_today_count++] = 0;
+            }
+            else if (strcmp(argv[arg], "gNa") == 0) {
+                p.not_today[p.not_today_count++] = 1;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "gK") == 0) {
+                p.not_today[p.not_today_count++] = 2;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "gL") == 0) {
+                p.not_today[p.not_today_count++] = 3;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "VNa") == 0) {
+                p.not_today[p.not_today_count++] = 4;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "VK") == 0) {
+                p.not_today[p.not_today_count++] = 5;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "VL") == 0) {
+                p.not_today[p.not_today_count++] = 6;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "sn") == 0) {
+                p.not_today[p.not_today_count++] = 7;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "sm") == 0) {
+                p.not_today[p.not_today_count++] = 8;
+                count_N_T++;
+            }
+            else if (strcmp(argv[arg], "sh") == 0) {
+                p.not_today[p.not_today_count++] = 9;
+                count_N_T++;
+            }
+        }
+
+        if (p.not_today_count == 0) {
+            p.not_today_count = 10;
+            count_N_T = 9;
+
+            for (int i = 0; i < 10; i++)
+                p.not_today[i] = i;
+        }
+
+        dim = 4 + count_N_T * 4;
+    }
+
+        /*
         if (argc > 2)
             c = atof(argv[2]);
 
@@ -350,7 +407,7 @@ int main(int argc, char *argv[]) {
         }
 
         dim = 4 + count_N_T * 4;
-    }
+    }*/
 
     Solver *solver_sens = solver_unit(dim);
 
@@ -373,7 +430,7 @@ int main(int argc, char *argv[]) {
      */
     // Для calculus - теста
     int global = 0;
-    double x[4] = {0.0, 0.042, 0.608, 0.6};
+    double x[4] = {0.0, 0.05293, 0.59612, 0.31768};
 
     double x1[4] = {0.0, 0.042, 0.608, 0.6};
 
@@ -415,6 +472,7 @@ int main(int argc, char *argv[]) {
         }
     } else if (use_calculus == 2){
 
+
         justice(lord);
         FILE *experiment = fopen("experiment.txt", "w");
 
@@ -423,9 +481,9 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-        for (int i = 3000; i < lord->n; i++) {
+        for (int i = 0; i < lord->n; i++) {
             fprintf(experiment, "%15le %15le\n",
-                    lord->ignominious_time[i] - 3000 * 0.02,
+                    lord->ignominious_time[i],
                     lord->ignominious_voltage[i]);
         }
 
@@ -434,19 +492,57 @@ int main(int argc, char *argv[]) {
         double h_long = h;
         int diam = (dim - 4) / 4;
 
-        int step = (int)(0.02 / h);
-        int data_count = lord->n - 3000;
+        int step = (int)(0.008 / h);
+        int data_count = lord->n;
+
 
         double *good_times = malloc(diam * data_count * sizeof(double));
         double *r = malloc(data_count * sizeof(double));
         double delta[10];
-        double alpha;
+        double alpha = 1e-4;
 
+        x[0] = 0.0;
+        x[1] = 0.042;
+        x[2] = 0.608;
+        x[3] = 0.6;
 
         int talon = 0;
-        p.ladder = 1;
+        p.ladder = 0;
+        p.Iext = -5.0;
+        double t2 = -1.0;
+        int count = 0;
+        int index = 0;
 
-        for (int iteration = 0; iteration < 10; iteration++) {
+        while (t2 <= 880.0) {
+
+            if (count % step == 0 && t2 >= 400.0) {
+
+                if (index >= data_count)
+                    break;
+
+
+
+                r[index] = -c - x[0]
+                           - lord->ignominious_voltage[index];
+
+                index++;
+            }
+
+
+            p.Iext = -5.0;
+            rk4(solver, x, h, f, &p, &global);
+
+            t2 += h;
+            count++;
+        }
+        double sum_r_2 = 0.0;
+
+        for (int i = 0; i < index; i++)
+            sum_r_2 += r[i] * r[i];
+
+        printf("sum_r_2 = %.15le\n", sum_r_2);
+        printf("Root Mean Square Error  = %.15le\n", sqrt(sum_r_2 / index));
+        for (int iteration = 0; iteration < gift; iteration++) {
 
             x1[0] = 0.0;
             x1[1] = 0.042;
@@ -463,13 +559,13 @@ int main(int argc, char *argv[]) {
             x2[2] = 0.608;
             x2[3] = 0.6;
 
-            double t2 = 0.0;
-            int count = 0;
-            int index = 0;
+            t2 = -1.0;
+            count = 0;
+            index = 0;
 
-            while (t2 < t_end) {
+            while (t2 <= 420.0) {
 
-                if (t2 >= 60.0 && count % step == 0) {
+                if (count % step == 0 && t2 >= 400.0) {
 
                     if (index >= data_count)
                         break;
@@ -481,26 +577,24 @@ int main(int argc, char *argv[]) {
                         if (p.not_today[a] == 0)
                             continue;
 
-
-
-                        good_times[q * data_count + index] = x2[4 + q * 4];
+                        good_times[q * data_count + index] =
+                                x2[4 + q * 4];
 
                         q++;
                     }
+
                     r[index] = -c - x2[0]
-                               - lord->ignominious_voltage[index + 3000];
+                               - lord->ignominious_voltage[index];
 
                     index++;
                 }
 
-                if (t2 >= 60.0)
-                    count++;
-
+                p.Iext = -5.0;
                 rk4(solver_sens, x2, h, f, &p, &global);
 
                 t2 += h;
+                count++;
             }
-
 
             int k = p.not_today_count;
 
@@ -535,14 +629,13 @@ int main(int argc, char *argv[]) {
 
             for (int q = k; q < 10; q++)
                 A[q][q] = 1.0;
-            double sum_r_2 = 0.0;
+            sum_r_2 = 0.0;
 
             for (int i = 0; i < data_count; i++)
                 sum_r_2 += r[i] * r[i];
 
             printf("%d: sum_r_2 = %.15le\n", iteration, sum_r_2);
 
-            alpha = 0.01;
 
             if (!solve_10x10(A, b, delta)) {
                 printf("You shall abandon the lie. Your time in that way was a bad investment on my part.\n");
@@ -607,19 +700,19 @@ int main(int argc, char *argv[]) {
 
         }
 
-
-        x1[0] = 0.0;
-        x1[1] = 0.042;
-        x1[2] = 0.608;
-        x1[3] = 0.6;
-
+        t_end = 880.0;
+        x[0] = 0.0;
+        x[1] = 0.042;
+        x[2] = 0.608;
+        x[3] = 0.6;
         p.ladder = 0;
 
-        while (t < t_end) {
 
-            if (t >= 60.0)
+        p.ladder = 0;
+        while (t <= t_end) {
+            if (t >= 400.0)
                 printf("%.15le %.15le %.15le %.15le %.15le\n",
-                       t - 60.0, -c - x[0], x[1], x[2], x[3]);
+                   t, -c - x[0], x[1], x[2], x[3]);
             if (strcmp(method, "rk4") == 0) {
                 rk4 (solver, x, h, f, &p, &global);
                 t += h;
